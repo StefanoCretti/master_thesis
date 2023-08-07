@@ -4,3 +4,17 @@
 The Objectives section summarizes the project rationale, the scientific hypothesis and the
 key experiments that have been planned to test the hypothesis (at least 1 page, not more than
 2 pages).
+
+Hi-C data is intrinsecally hard to process due to several factors, among which the fact that it is represented by a huge, extremely sparse, upper triagular matrix; this leads to challenges both in terms of memory management and computational time. There exist some tools which allow to work with this type of data, notably those grouped under the Open Chromosome Collective [ADD REF]. Among these, cooler [ADD REF] is used to handle data storage, while cooltools [ADD REF] can be used for general preprocessing and certain types of analysis (compartment and boundaries definition, feature and pattern pileup). 
+
+Nevertheless, at the time of writing, it seems that no tool for network analysis of Hi-C data exists yet. This is quite unexpected, given the fact that Hi-C contact matrices are examples of adjacency matrices, which are themselves natural representations of graphs. Rephrasing for clarity, Hi-C contact matrices can be easily converted into weighted, undirected graphs, with nodes representing the bins in which the genome has been divided into, and edges representing the contacts among those regions. The weights of the edges can be defined as the raw numbers of contacts obtained from sequencing or (better) some measure derived from them. Network analysis of Hi-C data would provide information complementary to the one obtained through the current analysis techniques, thus allowing to better study and characterize chromatin conformation and the role of specific genomic elements or regions. 
+
+HiCONA is a package which aims to address this lack of tools for Hi-C data network analysis. It is a Python3 fully object-oriented implementation, whose functions can be divided into two main tasks:
+\begin{itemize}\tightlist
+  \item Creating networks starting from a Hi-C contact matrix; this includes data retrieval from files, preprocessing, bin annotation and network generation.
+  \item Performing network analysis on those networks; different algorithms already validated and commonly used in data science have been implemented, keeping into account the specific properties of these networks. Moreover, contrast subgraphs [ADD REF], a more recent algorithm with promising perspectives, has also been implemented.
+\end{itemize}
+
+All these functionalities have been implemented trying to minimize as much as possibile memory usage and computational runtime, in order to allow using the package even on laptops.
+
+[TODO: ADD SOMETHING MAYBE ABOUT COMPATIBILITY OR OTHERS]
