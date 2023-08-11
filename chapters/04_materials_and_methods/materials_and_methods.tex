@@ -4,3 +4,156 @@
 The Materials and Methods section provides a detailed description of the protocols,
 software and algorithms used for the project (at least 3 pages, maximum 10 pages; if you need
 more pages, include an Appendix).
+
+\section{Implementation}
+The package is fully implemented in Python3 and it is compatible with Python version [=> 3.7?].
+It uses a fully object-oriented programmin (OOP) approach to keep the functions organized and make it extremely easy to extend with further functionalities, especially adding new network-analysis algorithms.
+
+\subsection{Extended packages}
+Despite being written in Python, HiCONA is quite fast, since it works by extending objects from well established and optimized packages. The main packages HiCONA relies and extends upon on are:
+
+\begin{itemize}\tightlist
+  \item cooler, from which HiCONA extends the Cooler class in order to handle I/O from and to the .cool files. cooler in turn relies on h5py, which is the python wrapper for the C code used to handle .h5 files (of which .cool files are an example of). By adhering to the .cool format specifications, it is guaranteed that the processed files will be compatible with the other mainstream tools, therefore allowing the integration of HiCONA in pre-existing pipelines. 
+  \item graph-tool, from 
+  \item scipy and numpy
+  \item pandas (polars)
+\end{itemize}
+
+Since most of the operations are performed by these packages FAST
+
+Vectorized and parallelized 
+
+\subsection{Package flowchart}
+The package functionalities can be roughly divided into two parts:
+\begin{itemize}\tightlist
+  \item Network creation, which encompasses all the steps required to create graphs starting from the full Hi-C contact matrix.
+  \item Network analysis, which encompasses all the analyses conducted on the network objects created during preprocessing.
+\end{itemize} 
+The standard flowchart for the analyses which can be conducted using HiCONA is shown in Figure [ADD FLOWCH FIGURE].
+
+\subsection{Network creation} % Maybe make one level higher?
+Network creation is a mostly streamlined procedure; the user can tweak the parameters used in the preprocessing but the procedure is mostly fixed. This is because, in order to be able to perform downstream analyses, especially comparing results from different experiments or replicates, it is necessary for the networks to have been created using a common procedure, in order not to add biases in the result.
+
+[MAYBE EXPLAIN BEFORE THE PROCEDURE SO THAT THE INTER-CHROMOSOMAL THING IS CLEARER]
+
+Preprocessing starts from a .cool or .mcool file containing Hi-C data (technically, the package should work even with chip-seq data or any other type of data which can be represented in cool format, but this has yet to be tested); the data is read through a HiconaCooler object (which is an extension of the Cooler class from the cooler package).
+
+Pixel tables, which will later be converted to graphs, are created by retrieving a subset of the whole pixel table; currently the subset always corresponds to the all the pixels where the first bin in the pixel belongs to the specified chromosome. Notice that this means that not all pixels representing inter-chromosomal contacts are fetched. Subsetting on an arbitrary genomic region or including all inter-chromosomal contacts might be supported in the future, but it is not currently since it complicates significantly pixel retrieval plus there are some consideration regarding whether it is statistically sound to do so (explained later during distance normalization).
+
+The fetched pixel table is then filtered in order to remove:
+\begin{itemize}\tightlist
+  \item Inter-chromosomal pixels, meaning pixels where the two interacting bins do not belong to the same chromosome. This is the main simplifying step, which allows to break the entire contact matrix into tables of manageable size. The entire preprocessing could be still performed on the entire contact matrix, since it is conducted in chunks, but aside being rather slow, it would also lead to a final network which is extremely big and hard to handle for the analysis steps, which do require the entire network to be loaded in memory.
+  \item Self-looping pixels, meaning pixels where the two bins interacting have the same id. This can happen due to how the contact matrix is built; the contact matrix is initially built at the highest possible resolution (that is, smallest bin size), then, in order to obtain the lower resolutions, the bins are aggregated into wider bins, and if the two bins interacting at the higher resolution fall into the same lower resolution bin, the pixel will become a self loop.
+  \item Pixels with a genomic distance among the two bins constituting them above a certain threshold; this correspond to removing the pixels where the bins are so far apart that is likely that the contact is random and not biologically significant. Currently, the default value of this distance is 200 MB [REF SHOWING THAT THIS IS A SENSIBLE DISTANCE]. [ADD A CLAUSE SAYING THAT WE SAY THAT A PIXEL HAS A CERTAIN GENOMIC DISTANCE IF THE BINS...]
+  \item Pixels with a count value which is lower than a certain threshold; this is mostly to help reducing dimensionality and speed computation in less performing systems, but it should be avoided if possible since it introduces instability in the distance normalization (see next paragraph) and in general most pixels with very low counts are removed during network sparsification anyway. [PLUS IT SHOULD PROBABLY BECOME POINTLESS IN TERMS OF OPTIMATION WHEN THE ENTIRE THING IS CHUNK BASED].
+\end{itemize}
+
+After filtering, the pixel table is checked for duplicate rows; this operation should not be necessary, since by cooler file format definition, it should not be possibile to have duplicate rows. That being said, most of the files downloaded from the 4DNucleome data portal seem to have rows with identical bin id columns; to further complicate things, many times the duplicate rows have different counts (in which case only the count of the first appearance of each pixels is kept). Finally, pixels seem to not always be sorted by the second bin id. For this reason, currently sorting and deduplication is needed, which is rather suboptimal since it requires a full external merge sort (meaning at least [N] passes of the rows) plus another pass for deduplication. Moreover it requires the creation of potentially rather big temporary files. If the files are guaranteed to be correctly formatted, the deduplication step can be skipped for speed up.
+
+It is then necessary to normalize the pixel counts by genomic distance; this is because, the lower the genomic distance among two bins, the higher the probability of them being found in contact with each other due to random chance. Therefore, without this type of normalization, pixels with lower genomic distance among the bins will always be favoured and thus long range contacts will almost completely lost. The most natural way to normalize the counts by genomic distance is to scale using some summary statistic for the counts given a set distance. 
+The cooltools package [ADD REFERENCE], which belongs to the [NAME] just like cooler, normalizes intra-chromosomal pixels by computing the $\log_2$ ratio of the pixel counts and the expected counts for that distance, defined as the average of the counts of all possible pixels at that distance (even if the count is zero and thus they are not present in the ijv representation of the contact matrix). [SMOOTHING?]. The inter-chromosomal pixels are instead normalized by [SEARCH THE EXACT FORMULA]. The counts normalized this way quickly tend to zero after a certain genomic distance (well below $10^{-NUM}$), which leads to very inconvinient numbers to deal with. 
+The normalization HiCONA proposes is slightly different; each intra-chromosomal pixel is normalized taking the $\log_2$ ratio of the pixel count and a normalization factor which is the median value of all pixels with the same genomic distance present in the ijv representation of the contact matrix. This means that the normalization factor is always a positive integer value, rather than a floating point number; since the normalized counts are obtained from a ratio of two integer numbers which can take a fairly limited number of values (especially the denominator), an thus, despite them being floating point numbers, they take way less distinct values than those obtained through cooltools. This will become relevant during network sparsification, since having a smaller pool of values, most of which repeated, allows the use of memoization to speed up computations.
+The in depth comparison of the two methods is in the results section. [OR MAYBE HERE BUT I DO NOT THINK SO, MAYBE EVEN PUT THE WAY COOLTOOL DOES THINGS IN THE RESULTS, BUT I DO NOT REALLY LIKE THAT IDEA].
+
+Network sparsification explanation, which is probably going to be moved from the algorithm to here.
+
+After the sparsification, the pixel table is saved in a nested group structure; a main group, called "chrom\_tables" is added to the standard cool format and inside this group new groups, one for each set of parameters used in preprocessing, are created. The pixel table is then a final group inside the parameters one and each column of the table is saved as a separate table, just like the standard pixel table in the cool file. [DEFINITELY NEED A PICTURE OR TO SIMPLIFY THE CODE]. Aside from the standard pixel columns ("bin1\_id", "bin2\_id" and "count"), the table also contains the normalized counts ("exp\_ratio") and the sparsification scores ("spar\_alpha").
+
+The tables are permanently saved in the file and can be at any times retrieved and converted into a graph object using an instance of the ChromTable class. The ChromTable object is able to retrieve the pixels from the table, filter the pixels according to some alpha value, create a HiconaGraph object and annotate nodes and edges. The edges are annotated using raw counts and normalized counts, while the nodes, representing the bins, can be annotated using any combination of annotations present in the bin table of the cool file.
+
+HiCONA also provides the tools to manipulate bin annotations, allowing to add or remove a bin annotation, but also to convert one to One Hot Encoding (OHE). Turning an annotation column in OHE form means that, for each modality that the column can take (for instance "A" and "B"), a new column is created, taking value 1 if the value in the original column was that modality, 0 otherwise (in other words, the columns "is\_A" and "is\_B" are created). The final result is a HiconaGraph instance ready for network analysis.
+
+How to compute alpha value [AGAIN COPY FROM ALGORITHM?]
+
+\subsection{Network analysis}
+Once the HiconaGraph object has been created, network analysis can be conducted by calling the methods implemented in the Graph class from graph-tool (from which HiconaGraph inherits), or the methods implemented in the HiconaGraph class itself. Currently HiCONA only implements node-label permutation and contrast subgraphs, but the class is structured in such a way that it can easily be extended to accomodate other analysis algorithms; moreover it is important to notice that a miriad of methods are available from the base Graph class.
+
+[MOVE NETWORK PERMUTATIONS HERE?]
+
+[MOVE CONSTRAST SUBGRAPHS HERE?]
+
+\section{Optimization}
+Maybe create a section displaying all the things done to optimize, unsure if needed.
+During network creation, the table is always read in chunks due to the very big size, in the network analysis part it is read whole.
+
+\section{Algorithms}
+
+\subsection{Network sparsification}
+Network sparsification is an algorithm introduced in [ADD REF]; the objective of the procedure is to sparsify the network, e.i. reducing the number of edges in the graph, while retaining the overall topological properties and structure of the network. This is done in order to reduce data dimensionality and also filter out edges which are likely to be non-significant.
+
+While standard top-n edge filtering keeps only the top n scoring edges according to their weight, network sparsification keeps the edges which are contributing the most in defining the first order neighbourhoods of the nodes in the graph. This means that edges with relatively low weight but very high contribution in defining the local structure of the network are kept using network sparsification, while the would not be using top-n edge filtering; this is important when trying not to belittle smaller nodes [DEFINE BETTER SMALLER].
+
+As shown in [ADD ALGORITHM REFERENCE], the algorithm works by computing two sparsification scores for each edge using the equation [ADD EQUATION REFERENCE], one score for each node the edge is tangent to. 
+Each score takes a value in the range $(0,1]$ and the lower the score the higher the contribution of the edge in defining the neighbourhood. In general, for each edge, the minimal score among the two is kept; this is because an edge is to be kept if it satisfies some significance threshold for at least one of the nodes it is tangent to, not necessarely both of them. 
+
+After computing the sparsification score for each edge, the network can be sparsified by keeping only the edges with a sparsification score lower than a certain threshold. Threshold definition is always somewhat arbitrary, and using a set value (as one would for p-values) not only seems questionable, but also seems to not be optimal if one of the end goals is to compare multiple networks. A seemingly more reasonable approach is to define a graph-dependent threshold, and to be precise the value which tries to maximise the fraction of retained nodes (nodes that still have at least one tangent edge after the filtering) while also minimizing the fraction of edges in the graph [FIND A BETTER MATHEMATICAL EXPLAINATION THAN THE POINT CLOSE TO (1,0) in the plot].
+
+[WILL SEE IF KEEP, IN THEORY IT SHOULD HAPPEN]
+This entire procedure can be easily applied when the data is stored in memory in a graph-like structure. The issue is that, prior to sparsification, the size of the networks obtained from adjacency matrices is rather big, even when splitting the entire network into chromosome level ones. In order for the algorithm to run with a constant memory footprint, the algorithm [REF TO ORIGINAL ALGO] has been reworked into algorithm [NEW ALGO], which by using external merge sort and by keeping into account the way pixels are sorted, is able to only load part of the network into memory rather than the entirety of it. This obviously comes with an increase algorithm complexity due to the external merge sort steps required, but the fact that the operation becomes vectorizable in chunks still results overall in increased memory efficiency and reduced runtime.
+
+[NOTE: SOMEWHERE WRITE ABOUT MEMOIZATION]
+
+\subsection{Node-labels permutation}
+Node-labels permutation is a widely used algorithm in network science; its main objective is to test whether the average (or distribution) of some node-level statistic differs among nodes with different labels. To give a concrete example on Hi-C data, one might want to test whether bins containing a promoter region have a higher average degree with respect to bins containing a boundary region. 
+The algorithm can be roughly summarized as:
+\begin{itemize}\tightlist
+  \item Start from a network defined over a set of nodes $N$, of which some are labelled as $A$ while others are labelled as $B$. Notice that a node might have no label or both $A$ and $B$.
+  \item Compute some node-level statistic for all nodes of the network labelled with at least one of the labels of interest.
+  \item Compute the $\log_2$-fold change among the statistic average for the nodes labelled as $A$ and those labelled as $B$.
+  \item Shuffle the labels among the nodes; retain the number of nodes which have either label or both of them (basically the two labels for a node "is A" and "is B" are kept together).
+  \item Recompute the $\log_2$-fold change.
+  \item Repeat the previous two steps a certain amount of times (usually at least a 1000 times).
+  \item Use the values obtained from the permutations to create an empirical distribution.
+  \item Observe where the original value places in the empirical distribution; the fraction of permutations that yielded a value higher than the original one is the p-value for the test
+  $H_0: average stat for nodes A same as average stat for nodes B, H_1: average stat for nodes A is higher than average stat for nodes B$. (the test for A < B can be obtained from 1 - this p-val)
+\end{itemize}
+
+Just like for any statistical test which has to be applied multiple times, some p-value correct should be applied, such as Benjamini-Hochberg.
+
+Different node level statistics can be used, with different meaning at the network level. Some statistics that can be used, and which are implemented in HiCONA, are:
+\begin{itemize}\tightlist
+  \item Average degree: description of the statistic
+  \item Betweenness centrality: description of the statistic
+  \item Other: description of the statistic
+  \item Other I do not remember rn: description of the statistic
+\end{itemize}
+
+Note that to all nodes in the network can be assigned a mock label "is universe", which allows for comparison of nodes with a specific label with respect to the entire network.
+
+In the animal-community studies field, it has been discussed for a while how node-label permutation does not actually perform as well as initially though given that most permutations do not satisfy the joint probabilities smth smth dont remember exactly [ADD REFERENCE TO CHIMPANZEE]; fairly recently, a theoretical proof that node-label permutation perform exactly like non-network-based parametric methods has been published [ADD REFERENCE]. That being said, the network approach INSERT REASON WHY THE NETWORK APPROACH IS STILL GOOD, LIKE INTERPRETABILITY AND SUCH.
+
+\subsection{Contrast subgraphs}
+
+\section{Benchmarking}
+Some benchmarking introduction?
+
+\subsection{Memory benchmarking}
+
+\subsection{Computation time benchmarking}
+
+\subsection{Test datasets}
+Several datasets have been used for benchmarking purposes, all of which are available on the 4DNucleome data portal [ADD REF] as .mcool format files. Unless specified otherwise, the files are always analysed at the 10 kb resolutions; this is because 10 kb bins are a good compromise in terms of having high enough detail while still working on contact matrices which are not exceedingly sparse. [PROBABLY EXPLAIN IN THE INTRODUCTUION HOW COOLERS ARE A MERGE OF FILES]. 
+For each dataset, file size always refers to the size in [GIGA?]bytes of the pixel table at 10 kb resolution. This is because the actual full file size is a bad proxy to define how fast or slow the algorithms run and scale; this is because: 
+\begin{itemize}\tightlist
+  \item The algorithms only ever run on the pixel table at one resolution (in general 10 kb)
+  \item If the resolution is not exceedingly small, the pixel table will always be several orders of magnitude bigger than the bin table; in general, the 10 kb bin table for a human cell line file will have around $10^[SOMETHING]$ rows (number which is constant since it depends on genome size), while an average pixel table will have around $10^[SOMETHING]$ rows (number which is variable since it depends mostly on experiment coverage). If we denote with $n$ the number of rows of the bin table, the pixel table could have up to $n^2$ rows, though this number is never realistically reached since the pixel table is extremely sparse.
+  \item Total file size takes into account bin annotations, which can take a huge amount of space (especially when categorical with many modalities, such as names) and do not impact algorithm run time.
+\end{itemize}
+Since any pixel table row is in the form "bin1\_id", "bin2\_id", "count" [AND ALL THREE OF THEM ARE UNSIGNED 64-bit INTEGERS, THEREFORE TAKING 8 BYTES OF MEMORY EACH, PIXEL TABLE SIZE IS GIVEN BY 24 BYTES TIMES THE NUMBER OF ROWS OF THE PIXEL TABLE][NOTE: THIS IS JUST A RANDOM GUESTIMATE, CHECK]
+The characteristics of the datasets used are summarized in Table \ref{datasets_table}
+
+\begin{table}[]
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Name           & 4DN ID   & Sample                                                                            & Size \\ \hline
+HUVEC Rao 2017 & 4DN39384 & \begin{tabular}[c]{@{}c@{}}Human umbilical vein \\ endothelial cells\end{tabular} & 2 gB \\
+HMEC Rao 2017  & 4DN39384 & \begin{tabular}[c]{@{}c@{}}Human mammary\\ epithelial cells\end{tabular}          & 4 gb \\
+Cell line      & 4DN39384 &                                                                                   &      \\
+Cell line      & 4DN39384 &                                                                                   &      \\
+Cell line      & 4DN39384 &                                                                                   &      \\ \hline
+\end{tabular}
+\end{center}
+\caption{\label{datasets_table}Table summarizing the datasets used for benchmarking.}
+\end{table}
+
