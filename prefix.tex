@@ -25,7 +25,7 @@
 \usepackage{epsfig}
 
 % Some generally useful packages that you may or may not need
-\usepackage[ruled,vlined]{algorithm2e}
+% \usepackage[ruled,vlined]{algorithm2e}
 \usepackage[toc, page]{appendix}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{fancyhdr}
@@ -51,6 +51,13 @@
 % Set font to Times New Roman
 \usepackage{newtxtext}  % Times-like text font
 \usepackage{newtxmath}  % Times-like math font
+
+% Algorithm packages
+\usepackage{algorithm}      % Add code caption
+\usepackage{algpseudocode}  % Add algorithmic environment
+\usepackage{setspace}       % To increase spacing among pseudocode lines
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
 
 % Some general page settings from 
 % https://github.com/giacThePhantom/MolecularPhysics

@@ -1,0 +1,4 @@
+Add number to all pages (currently only those where a chapter starts)
+Change space required for chapter title (currently a bit too much)
+Define preprint style?
+Ask for bibliography style
