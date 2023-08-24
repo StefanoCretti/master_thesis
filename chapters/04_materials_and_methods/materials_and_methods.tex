@@ -104,16 +104,24 @@ $$\text{keep edge } ij \iff \alpha_{ij} < \alpha$$
 \setstretch{1.15}
 \caption{Network sparsification algorithm, Serrano et. al, 2009}\label{alg:originalSparsification}
 \begin{algorithmic}[1]
-\Require The graph, the cutoff
-\Ensure The sparsified graph
-\State Initialize alpha values to 1
-\For{Node in the graph}
-    \State Get num incident edges and sum of weights
-    \State Normalize incident edges 
-    \State For each edge compute the sparsification score
-    \State If the sparsification score is smaller, update
+\Require $G$ = a graph defined over vertices $V$ and edges $E$, $\alpha$ = sparsification cutoff
+\Ensure $G'$ = the sparsified graph
+\State Set $\alpha_{ij, curr} = 1, \forall (i,j) \in V, i \neq j$ 
+\For{$i \in V$}
+    \State $w_{sum} =$ sum of weight of all incident edges
+    \State $k_i =$ degree of node $i$ 
+    \For{$j \in$ neighbours of $i$} 
+      \State $w_{norm} = w_{ij} / w_{sum}$
+      \State $\alpha_{ij, new} = 1 - (k_i-1) \int_0^{w_{norm}}(1-x)^{k_i-2}dx$
+      \State $\alpha_{ij, curr} = \min(\alpha_{ij, curr},\alpha_{ij, new})$
+    \EndFor
 \EndFor
-\State Filter the edges by keeping only the ones below cutoff
+\State $G' =$ empty graph
+\For{$(i,j) \in V, i \neq j$}
+    \If{$\alpha_{ij, curr} < \alpha$}
+        \State Add edge $e_{ij}$ to $G$
+    \EndIf
+\EndFor
 \end{algorithmic}
 \end{algorithm}
 
@@ -135,9 +143,12 @@ This entire procedure can be easily applied when the data is stored in memory in
 % TODO: Remove or use as recap at the end to the section
 % After the sparsification, the pixel table is saved in a nested group structure; a main group, called "chrom\_tables" is added to the standard cool format and inside this group new groups, one for each set of parameters used in preprocessing, are created. The pixel table is then a final group inside the parameters one and each column of the table is saved as a separate table, just like the standard pixel table in the cool file. [DEFINITELY NEED A PICTURE OR TO SIMPLIFY THE CODE]. Aside from the standard pixel columns ("bin1\_id", "bin2\_id" and "count"), the table also contains the normalized counts ("exp\_ratio") and the sparsification scores ("spar\_alpha").
 
+% TODO: Create image for network sparsification?
+
 \section{Bin annotation manipulation}
 
-The cooler format is structured in order to accomodate for any number and type of bin annotations, and in fact most .cool files have a some bin normalization weight column (generally containing KR normalization scores). Although this is the case, the cooler package does not provide a very convenient facility to manipulate these annotations; for this reason HiCONA does implement methods to add, remove and manipulate bin annotations.
+The cooler format is structured in order to accomodate for any number and type of bin annotations, and in fact most .cool files have a some bin normalization weight column (generally containing KR normalization scores). Although this is the case, the cooler package does not provide a very convenient facility to manipulate these annotations; for this reason HiCONA does implement methods to add, remove and manipulate bin annotations, which are shown in figure \ref{fig:flowchart} (b). 
+% TODO: Alse refer other figure if one for annotation is created
 
 \subsection{Adding and removing bin annotations}
 
@@ -154,11 +165,13 @@ Working with a categorical bin annotation with multiple modalities is not conven
 After the chromosome-label pixel tables have been created, and any required bin annotation has been added to the bin table, the networks are ready to be generated and analyzed. The minimal network is created by selecting a pixel table to use as edge list; the edges are then annotated with raw counts, normalized counts and sparsification score, while the nodes are annotated with the corresponding bin id, chromosome, start and end. Any number of other node annotations can be also added, provided that it is present in the bin table. Moreover, a sparsification score cutoff can be specified to filter the edges prior to building the network.
 % TODO: Check that the annotations used are in fact those written, they should be
 
-Once a network, which is an instance of the HiconaGraph class, has been created, it can be analysed either with one of the many generic network analysis algorithms inherited from the graph-tool package, or using one of the more specific algorithms implemented by HiCONA. Currently HiCONA implements node-label permutation and contrast subgraphs extraction, but the package is structured in such a way that it can easily be extended to accomodate other analysis algorithms.
+Once a network, which is an instance of the HiconaGraph class, has been created, it can be analysed either with one of the many generic network analysis algorithms inherited from the graph-tool package, or using one of the more specific algorithms implemented by HiCONA. Currently HiCONA implements node-label permutation and contrast subgraphs extraction, shown in figure \ref{fig:flowchart} (c), but the package is structured in such a way that it can easily be extended to accomodate other analysis algorithms.
 
 \subsection{Node-labels permutation}
 
-Node-labels permutation, or simply node permutation, is a widely used algorithm in network science; its main objective is to test whether the average (or distribution) of some node-level statistic differs among nodes with different labels. To give a concrete example on Hi-C data, one might want to test whether bins containing a promoter region tend to form more connections, on average, with respect to bins containing a boundary region.
+Node-labels permutation, or simply node permutation, is a widely used algorithm in network science; its main objective is to test whether the average (or distribution) of some node-level statistic differs among nodes with different labels. To give a concrete example on Hi-C data, one might want to test whether bins containing a promoter region tend to form more connections, on average, with respect to bins containing a boundary region. 
+
+The algorithm, displayed in Alg.\ref{alg:labelPermutations}, can be summarized as follows. A network, whose nodes are annotated as either $A$, $B$, none or both, is given; $A$ and $B$ are the two labels which are to be compared. Once some node-level statistic has been defined, that statistic is computed for all nodes annotated as $A$ and then averaged. After this has been repeated for the nodes annotated as $B$, the $\log_2$ fold change among the two is computed; this is the \emph{original} fold change. Then, an empirical distribution is created by randomly shuffling node annotations and recomputing the fold change for $N$ times, where $N$ is the number of specified permutations; notice that the actual structure of the network is never changed. The fraction of \emph{permuted} fold changes which are more extreme (higher) than the \emph{original} fold change is the p-value for the test $H_0: S(A) = S(B), \, H_1: S(A) > S(B)$, where $A$ and $B$ represent the set of nodes annotated as $A$ and $B$, respectively, and $S$ is the average statistic for a node set. 
 
 \begin{algorithm}
 \setstretch{1.15}
@@ -166,69 +179,53 @@ Node-labels permutation, or simply node permutation, is a widely used algorithm 
 \begin{algorithmic}[1]
 \Require $G$ = a graph defined over vertices $V$ and edges $E$; each vertex can be annotated as $A$, $B$, both or neither. $S$ = the average of a node-level statistic over a set of nodes. $N$ = the number of permutations to perform.
 \Ensure The p-value for the test $\begin{cases} H_0: S(A) = S(B) \\ H_1: S(A) > S(B) \end{cases}$
-\State Define a vector $L = \left[l_1, l_2, \dots, l_{|V|}\right]$, such that $l_i = (l_{Ai}, b_i)$ with $a_i = 1$ if $v_i$ is annotated as $A$, 0 otherwise (define $b_i$ analogously)
-\State Define the sets $A = \{v_i | v_i \in V, a_i = 1\}$, $B = \{v_i | v_i \in V, b_i = 1\}$
+\State Define a vector of node labels $L = \left[l_1, l_2, \dots, l_{|V|}\right]$, such that each element is a tuple $l_i = (l_{Ai}, l_{Bi})$ with $l_{Ai} = 1$ if $v_i$ is annotated as $A$, 0 otherwise (define $l_{Bi}$ analogously)
+\State Define the sets $A = \{v_i | v_i \in V, l_{Ai} = 1\}$, $B = \{v_i | v_i \in V, l_{Bi} = 1\}$
 \State Compute $s_{original} = \log_2(S(A)/S(B))$
 \State Initialize $counter = 0$ 
 \For{$n \in [1, N]$}
     \State $L_n = [l_{\pi_n(1)}, l_{\pi_n(2)}, \dots, l_{\pi_n(|V|)}]$, where $\pi_n$ is some permutation function
-    \State $A_n = \{v_i | v_i \in V, a_{\pi_n(i)} = 1\}$, $B = \{v_i | v_i \in V, b_i = 1\}$
+    \State $A_n = \{v_i | v_i \in V, l_{n, Ai}=1\}$, $B_n = \{v_i | v_i \in V, l_{n, Bi}=1\}$
+    \State $s_{permutation} = \log_2(S(A_n)/S(B_n))$
+    \If{$s_{permutation} > s_{original}$}
+        \State $counter = counter + 1$
+    \EndIf
 \EndFor
-\State Filter the edges by keeping only the ones below cutoff
+\State $p_{val} = counter / N$
 \end{algorithmic}
 \end{algorithm}
 
-The algorithm can be roughly summarized as:
-\begin{itemize}\tightlist
-  \item Start from a network defined over a set of nodes $N$, of which some are labelled as $A$ while others are labelled as $B$. Notice that a node might have no label or both $A$ and $B$.
-  \item Compute some node-level statistic for all nodes of the network labelled with at least one of the labels of interest.
-  \item Compute the $\log_2$-fold change among the statistic average for the nodes labelled as $A$ and those labelled as $B$.
-  \item Shuffle the labels among the nodes; retain the number of nodes which have either label or both of them (basically the two labels for a node "is A" and "is B" are kept together).
-  \item Recompute the $\log_2$-fold change.
-  \item Repeat the previous two steps a certain amount of times (usually at least a 1000 times).
-  \item Use the values obtained from the permutations to create an empirical distribution.
-  \item Observe where the original value places in the empirical distribution; the fraction of permutations that yielded a value higher than the original one is the p-value for the test
-  $H_0: average stat for nodes A same as average stat for nodes B, H_1: average stat for nodes A is higher than average stat for nodes B$. (the test for A < B can be obtained from 1 - this p-val)
-\end{itemize}
+Just like for any statistical test which has to be applied multiple times, some p-value correct should be applied, such as Benjamini-Hochberg [REF?]. Currently HiCONA does not natively apply any correction.
 
-Just like for any statistical test which has to be applied multiple times, some p-value correct should be applied, such as Benjamini-Hochberg.
+Different node level statistics can be used, with different meaning at the network level. Some statistics that can be used, and which are implemented in HiCONA, are degree, betweenness centrality and local clustering coefficient. For in depth explanation of their definition and meaning, please refer to [ADD REF TO APP I]
 
-Different node level statistics can be used, with different meaning at the network level. Some statistics that can be used, and which are implemented in HiCONA, are:
-\begin{itemize}\tightlist
-  \item Average degree: description of the statistic
-  \item Betweenness centrality: description of the statistic
-  \item Other: description of the statistic
-  \item Other I do not remember rn: description of the statistic
-\end{itemize}
-
-Note that to all nodes in the network can be assigned a mock label "is universe", which allows for comparison of nodes with a specific label with respect to the entire network.
-
-In the animal-community studies field, it has been discussed for a while how node-label permutation does not actually perform as well as initially though given that most permutations do not satisfy the joint probabilities smth smth dont remember exactly [FIX] \cite{nullmodel2017}; fairly recently, a theoretical proof that node-label permutation perform exactly like non-network-based parametric methods has been published [ADD REFERENCE]. That being said, the network approach INSERT REASON WHY THE NETWORK APPROACH IS STILL GOOD, LIKE INTERPRETABILITY AND SUCH.
+Note that HiCONA can assign the mock label \emph{universe} to all nodes in the network, which allows for comparison of nodes with a specific label with respect to the entire network.
 
 \subsection{Contrast subgraphs}
 [ACTUALLY WRITE PARAGRAPH]
 
-\section{Optimization}
-Maybe create a section displaying all the things done to optimize, unsure if needed.
-During network creation, the table is always read in chunks due to the very big size, in the network analysis part it is read whole.
-[NOTE: SOMEWHERE WRITE ABOUT MEMOIZATION]
+% TODO: Write a separate optimization section? Probably not needed
 
 \section{Benchmarking}
-[Some benchmarking introduction?]
+Given the focus of the package on being fast and usable even on less performing systems, benchmarking on both RAM usage and computational runtime are needed. This is particularly true for the preprocessing part, when the data dimensionality is still very high.
 
 \subsection{Memory benchmarking}
 
-\subsection{Computation time benchmarking}
+Memory benchmarking is performed mainly through the \emph{memory\_profiler} [ADD REF] Python package. The package requires the user to decorate the functions to profile using the \emph{@profile} decorator; then the code to benchmark can be ran using \emph{\$ python \-m memory\_profiler code\_to\_benchmark.py} [DECIDE HOW TO WRITE CODE BLOCK] to display memory usage line-by-line, while \emph{\$mprof run code\_to\_benchmark.py} followed by \emph{\$ mprof plot} can be used to display memory usage overtime.
+
+\subsection{Computational runtime benchmarking}
+
+Computational runtime benchmarking is performed using two Python packages, the built-in \emph{timeit} and third-party \emph{line\_profiler}, which works similarly to \emph{memory\_profiler} by decorating the functions for which line-by-line times usage has to be reported. 
 
 \subsection{Test datasets}
-Several datasets have been used for benchmarking purposes, all of which are available on the 4D Nucleome data portal \cite{4dn2022} as .mcool format files. Unless specified otherwise, the files are always analysed at the 10 kb resolutions; this is because 10 kb bins are a good compromise in terms of having high enough detail while still working on contact matrices which are not exceedingly sparse. [PROBABLY EXPLAIN IN THE INTRODUCTUION HOW COOLERS ARE A MERGE OF FILES]. 
-For each dataset, file size always refers to the size in [GIGA?]bytes of the pixel table at 10 kb resolution. This is because the actual full file size is a bad proxy to define how fast or slow the algorithms run and scale; this is because: 
+Several datasets have been used for benchmarking purposes, all of which are available on the 4D Nucleome data portal \cite{4dn2022} as .mcool format files. Unless specified otherwise, the files are always analysed at the 10 kb resolutions; this is because 10 kb bins are a good compromise in terms of having high enough detail while still working on contact matrices which are not exceedingly sparse. 
+For each dataset, file size always refers to the size of the pixel table at 10 kb resolution in gigabytes. This is because the actual full file size is a bad proxy to define how fast or slow the algorithms run and scale. This is due to several reasons: 
 \begin{itemize}\tightlist
   \item The algorithms only ever run on the pixel table at one resolution (in general 10 kb)
   \item If the resolution is not exceedingly small, the pixel table will always be several orders of magnitude bigger than the bin table; in general, the 10 kb bin table for a human cell line file will have around $3 * 10^5$ rows (number which is constant since it depends on genome size), while an average pixel table will have around $1.5 * 10^9$ rows (number which is variable since it depends mostly on experiment coverage). If we denote with $n$ the number of rows of the bin table, the pixel table could have up to $n^2$ rows, though this number is never realistically reached since the pixel table is extremely sparse.
-  \item Total file size takes into account bin annotations, which can take a huge amount of space (especially when categorical with many modalities, such as names) and do not impact algorithm run time.
+  \item Total file size takes into account bin annotations, which can take a huge amount of space (especially when categorical with many modalities, such as names, since they have to be stored as strings) and do not impact algorithm run time.
 \end{itemize}
-Since any pixel table row is in the form "bin1\_id", "bin2\_id", "count" [AND ALL THREE OF THEM ARE UNSIGNED 64-bit INTEGERS, THEREFORE TAKING 8 BYTES OF MEMORY EACH, PIXEL TABLE SIZE IS GIVEN BY 24 BYTES TIMES THE NUMBER OF ROWS OF THE PIXEL TABLE][NOTE: THIS IS JUST A RANDOM GUESTIMATE, CHECK]
+Since two columns of the pixel table ("bin1\_id" and "bin2\_id") are vectors of 64-bit signed integers, while the remaining one ("count") is a vector of 32-bit signed integers, each row of the pixel table requires 20 bytes of memory. It follows that the reported file size is then 20 bytes times the number of rows of the pixel table.
 The characteristics of the datasets used are summarized in Table \ref{datasets_table}
 
 \begin{table}[]

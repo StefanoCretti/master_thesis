@@ -3,3 +3,13 @@
 \addcontentsline{toc}{chapter}{Appendix I}  
 
 Used if more pages of materials and methods are required. Not included in 85 pages count.
+
+\begin{itemize}\tightlist
+  \item \textbf{Degree}: a measure of how connected a node is, defined as the number of neighbours of a node.
+  \item \textbf{Betweenness centrality}: a measure of the importance (centrality) of the node for the flow of information through the network. Mathematically defined as:
+  $$C_B(v) = \sum_{s \neq v \neq t \in V} \frac{\sigma_{st}(v)}{\sigma_{st}}$$
+  with $s$,$v$ and $t$ being three vertexes of the graph, $\sigma_{st}$ being the number of shortest paths from $s$ to $t$ and $\sigma_{st}(v)$ being the number of shortest paths from $s$ to $t$ which do include $v$.
+  \item \textbf{Local clustering coefficient}: a measure of how connected is the neighbourhood of a node. Defined as:
+  $$c_i = \frac{\{e_{jk}\}}{k_i(k_i-1)} : v_j,v_k \in N_i, e_jk \in E$$
+  where $\{e_{jk}\}$ is the number of edges among the neighbours of $v_i$ ($N_i$) present in the graph, while $k_i(k_i-1)$ represents the total number of possible edges among those neighbours, being $k_i$ the degree of vertex $v_i$.
+\end{itemize}
