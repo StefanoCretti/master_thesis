@@ -1,20 +1,24 @@
-\graphicspath{{chapters/02_introduction/}}
+\graphicspath{{chapters/02_introduction/images}}
 \chapter{Introduction}
 
-The Introduction provides the background to the research work (at least 5 pages, not more
-than 10).
+% The Introduction provides the background to the research work (at least 5 pages, not more than 10).
 
-\section{Chromatin Conformation Capture}
+\section{Hi-C}
+Hi-C, first introduced in 2009 [ADD REF], is a techique belonging to the broad family of chromosome conformation capture techniques. 
+
+All these techniques work by crosslinking, proximity ligation, removing crosslink and sequencing.
+
+% Explanation of the experiment type (and history?) 
 
 \section{Cool format}
 
-[PROBABLY EXPLAIN IN THE INTRODUCTUION HOW COOLERS ARE A MERGE OF FILES]. 
-
-Working with one resolution does not modify the others
+% TODO: Explain how coolers are obtained by merging multiple files at multiple resolutions
+% TODO: Working with one resolution does not modify the others
 
 % TODO: Check whether it fits here or distance normalization subsection
 Several normalizations strategies for systematic biases in Hi-C data exist and none of them seems to be a clear cut winner with respect to the others \cite{normalization2020}. Among these methods, some of the most common ones are iterative correction and eigenvector decomposition (ICE) \cite{ice2012} and Knight-Ruiz (KR) \cite{knightruiz2012}; both of them are matrix balancing algorithms that rely on the assumption that systematic sequencing biases, such as GC content, are bin specific and fully recapitulated by sequencing depth. This roughly translates into the assumption that all bins should have the same sequencing depth and thus some normalization coefficient is computed for each bin using only sequencing depth, then each pixel is corrected using the normalization factors of its two bins. Aside from the fact that this assumption seems rather forceful, these methods are individual-sample normalization approaches and they are generally outperformed by cross-sample normalization ones, especially in regards of reproducibility. Still, individual-sample normalization approaches have the major advantage of usually being significantly faster, also considering the fact that one file has to be normalized only once regardless of how many analyses and comparisons will be performed on it. 
 
-\section{Network analysis?}
+\section{Network analysis}
 
-[NODE STRENGTH DEFINITION]
+% What is network analysis, graph definition, advantages etc
+% TODO: Add node strenght definition

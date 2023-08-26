@@ -1,4 +1,4 @@
-\graphicspath{{chapters/05_results/}}
+\graphicspath{{chapters/05_results/images}}
 \chapter{Results}
 
 % The Results part describes all the experiments performed and their statistical analysis (at least 10, maximum 40 pages). If you want to provide replication data, include them in another appendix (Appendix II).
@@ -7,9 +7,6 @@
 
 \subsection{Pixel filtering}
 % Pixel filtering statistics
-
-\subsection{Pixel deduplication and sorting}
-% Ideally I would like to skip this since it SHOULD NOT BE NEEDED
 
 \subsection{Pixel distance normalization}
 % Comparison with cooltools normalization
@@ -28,7 +25,7 @@
 \subsection{Node-labels permutation}
 % Permutation plot with no pattern
 
-\subsection{Contrast subgraphs}
-% If it will be done 
 
-% Other analysis Leo made
+% TODO: Use the following statement when defining the chunks
+% It follows that the reported file size is then 20 bytes times the number of rows of the pixel table.
+% Since two columns of the pixel table ("bin1\_id" and "bin2\_id") are vectors of 64-bit signed integers, while the remaining one ("count") is a vector of 32-bit signed integers, each row of the pixel table requires 20 bytes of memory.
