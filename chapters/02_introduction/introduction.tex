@@ -3,17 +3,45 @@
 
 % The Introduction provides the background to the research work (at least 5 pages, not more than 10).
 
-\section{Hi-C}
+\section{Chromosome conformation capture and Hi-C}
 Hi-C, first introduced in 2009 [ADD REF], is a techique belonging to the broad family of chromosome conformation capture techniques. 
 
 All these techniques work by crosslinking, proximity ligation, removing crosslink and sequencing.
-
 % Explanation of the experiment type (and history?) 
 
-\section{Cool format}
+From the sequencing, chimeric reads are obtained; which 
+
+As mentioned, chromosome conformation capture experiments lead to the creation of contact matrices, meaning matrices with genomic regions as rows and columns, while each cell represents the number of contacts that have been found among the genomic regions specified by its row and column. Assuming that the entire genome of the analyized organism has been 
+
+Up to contact matrix
+Resolution etc
+Contact matrices are usually displayed as heatmaps, with each square representing the intensity of the contact between a specific pair of genomic regions.
+
+\section{Cooler format}
+While the dense form of the contact matrix is convenient for visualization purposes, it is not for its storage. The size of the dense matrix scales quadratically with the number of bins the genome has been divided into; with an itermediate bin size of 10 kb, a contact matrix corresponding to the entire human genome has around $10^{11}$ cells. A dense matrix of this size quickly becomes hard to handle, especially as the resolution increases.
+Given that the contact matrix is symmetric (the bin contacts are not directional), only the upper triagular part of it can be stored. Moreover, it is important to consider that it is a very sparse matrix, with usually less than 0.5\% of the cells having value greater than zero. % REF WOULD BE NICE
+For these two reasons, a more memory efficient way of storing it is the \emph{ijv} format, meaning a tabular format where each row contains the two coordinates of the cell and the value associated to it, and only cells with a value greater tha zero are saved.
+A plain text represetation of this table would be too limiting in terms of I/O speed and thus indexed and compressed binary files are used instead. HDF5 is a binary file format organized hierachically just like a file system, with groups corresponding to folders and datasets corresponding to files. Both groups and tables can be associated with some metadata. % MAYBE A BIT MORE ON THIS
+
+The cooler format was introduced by Abdennur and Mirny\cite{cooler2020} in order to facilitate the storage and retrieval of Hi-C data (or any other type of genomically labeled array). A cooler file is a HDF5 with a specific structure; each file contains 4 main groups:
+\begin{itemize}\tightlist
+  \item bins, containing information on the intervals the genome was binned into.
+  \item pixels, containing the actual contact matrix in \emph{ijv} form.
+  \item chroms, containing the chromosomes of the reference genome and their length.
+  \item indexes, containing indexes for fast retrieval of the pixels corresponding to a certain row of the dense contact matrix or the rows corresponding to a specific chromosome.
+\end{itemize}
+Each of these groups contains several datasets which represent individual columns of a single table; for this reason, from here on, the term table will be used to refer to the table obtained by joining the individual datasets present in the group.
+Each row in the bins table represents one of the bins the genome has been divided into. For each bin, \texttt{chrom}, \texttt{start} and \texttt{end} positions are always specified, while any number of columns containing additional annotations can be present. In general, the package \emph{cooler}, used to create these files, adds some columns which can be used to normalize the bin counts, but any other type of annotation, such as the presence of functional elements, can be present.
+The table in the pixels group is the \emph{ijv} representation of the contact matrix. Each row has exactly three values, those being \texttt{bin1\_id}, \texttt{bin2\_id} and \texttt{count}, with the first two being the ids of the two bins in contact, while the third is the raw number of contacts found by sequencing. The term \emph{pixel} is used to indicate a row of this table since each row corresponsd to a square in the image representation of the contact matrix. The id of a bin is its index in the bins table; by referring to the bins via their ids, the pixel table can be drastically simplified, otherwise specifing chromosome, start and end positions for each of the two pixels of each row would be necessary. At any point, a subset of the pixel table can be converted to the extended form via the process called pixel annotation.
+
+An individual \texttt{.cool} file contains only one pixels table at one resolution. A multiresolution cooler, or \texttt{.mcool} file, is a collection of \texttt{.cool} files referring to the same experiment but at different resolutions. It is itself a single HDF5 file, with a root group called \texttt{resolutions} in which the individual coolers can be found in groups names after the binning resolution. It is important to notice that this format is mostly designed for grouping purposes; the different resolutions are completely independent from each other during processing, therefore working on one does not impact the others. Another specialized form of cooler format is the \texttt{.scool} format, which is instead a collection of \texttt{.cool} (or \texttt{.mcool}) files corresponding to different cells and is thus used for single cell experiments. 
+
+% TODO: How cooler pixels are sorted
+
+% TODO: maybe place the following statement somewhere
+% the package should work even with chip-seq data or any other type of data which can be represented in cool format, but this has yet to be tested). micrpo-c gam
 
 % TODO: Explain how coolers are obtained by merging multiple files at multiple resolutions
-% TODO: Working with one resolution does not modify the others
 
 % TODO: Check whether it fits here or distance normalization subsection
 Several normalizations strategies for systematic biases in Hi-C data exist and none of them seems to be a clear cut winner with respect to the others \cite{normalization2020}. Among these methods, some of the most common ones are iterative correction and eigenvector decomposition (ICE) \cite{ice2012} and Knight-Ruiz (KR) \cite{knightruiz2012}; both of them are matrix balancing algorithms that rely on the assumption that systematic sequencing biases, such as GC content, are bin specific and fully recapitulated by sequencing depth. This roughly translates into the assumption that all bins should have the same sequencing depth and thus some normalization coefficient is computed for each bin using only sequencing depth, then each pixel is corrected using the normalization factors of its two bins. Aside from the fact that this assumption seems rather forceful, these methods are individual-sample normalization approaches and they are generally outperformed by cross-sample normalization ones, especially in regards of reproducibility. Still, individual-sample normalization approaches have the major advantage of usually being significantly faster, also considering the fact that one file has to be normalized only once regardless of how many analyses and comparisons will be performed on it. 

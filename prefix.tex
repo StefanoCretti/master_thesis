@@ -6,24 +6,23 @@
 % Set page layout
 \usepackage[
   a4paper,
-  includehead,       % Header is within page margins
-  headheight=0.6cm,  % Always present (regardless of text)
   inner=2.5cm,
   outer=1.5cm,
-  top=2cm, 
+  top=2cm,
   bottom=2cm
   ]{geometry}
 
-% Suppress default required title
+% Suppress default required title (allow custom title page)
 \renewcommand\maketitle{}
 
-% To set line spacing to 1
+% Set line spacing to 1
 \usepackage{setspace}
 \singlespacing
 
-% To use .eps logo in title page
+% Allow the use of .eps logo in title page
 \usepackage{epsfig}
 
+% Change chapter title formatting
 \usepackage{titlesec}
 \titleformat{\chapter}[block]
   {\normalfont\Huge\bfseries}
@@ -31,24 +30,10 @@
   {10px}
   {}
 
-\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
 
-% Some generally useful packages that you may or may not need
-% \usepackage[toc, page]{appendix}
-% \usepackage[font=small,labelfont=bf]{caption}
-% \usepackage{fancyhdr}
-% \usepackage{float}
-% \usepackage[T1]{fontenc}
-% \usepackage{listings}
-% \usepackage{makecell}
-% \usepackage{multicol}
-% \usepackage{soul}
-% \usepackage{textcomp}
-% \usepackage{wrapfig}
-% \usepackage{xcolor}
-% \usepackage{graphicx}
-% \usepackage{lmodern}
-% \usepackage{tcolorbox}
+% Style caption font
+\usepackage[font=small,labelfont=bf]{caption}
 
 % Math packages
 \usepackage{amsfonts}
@@ -64,8 +49,8 @@
 \usepackage{algorithm}      % Add code caption
 \usepackage{algpseudocode}  % Add algorithmic environment
 \usepackage{setspace}       % To increase spacing among pseudocode lines
-\algrenewcommand\algorithmicrequire{\textbf{Input:}}
-\algrenewcommand\algorithmicensure{\textbf{Output:}}
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}  % Rename require to input
+\algrenewcommand\algorithmicensure{\textbf{Output:}}  % Rename ensure to output
 
 % References packages
 \usepackage[super]{natbib}  % Change citations to superscript
@@ -74,16 +59,14 @@
 \usepackage{multirow}              % Allow merge of rows
 \usepackage[table,xcdraw]{xcolor}  % Change cell background color
 
+% 
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
 % Some general page settings from 
 % https://github.com/giacThePhantom/MolecularPhysics
+% \usepackage{fancyhdr}
 % \pagestyle{fancy}
-
-%\renewcommand{\familydefault}{\sfdefault} %% this line prevents the conversion to Times New Roman, as it changes the default font family to serif
-
-% avoid indentation and preserve new lines from Markdown
-% \setlength{\parindent}{0pt}
-% \setlength{\parskip}{6pt plus 2pt minus 1pt}
-
 % \fancyhf{}
 % \lhead{\rightmark}
 % \cfoot{\leftmark}
@@ -91,18 +74,30 @@
 
 % \setcounter{secnumdepth}{5}
 
-% \lstset{
-%     frame=tb, % draw a frame at the top and bottom of the code block
-%     tabsize=4, % tab space width
-%     showstringspaces=false, % don't mark spaces in strings
-%     numbers=none, % display line numbers on the left
-%     commentstyle=\color{green}, % comment color
-%     keywordstyle=\color{red}, % keyword color
-%     stringstyle=\color{blue}, % string color
-%     breaklines=true,
-%     postbreak=\mbox{\textcolor{green}{$\hookrightarrow$}\space}
-% }
+\usepackage{listings}
+\lstdefinestyle{bash}{
+    language=sh,
+    basicstyle=\ttfamily,
+    breaklines=true,
+    frame=leftline,
+    rulecolor=\color{gray},
+    framerule=2pt,
+    xleftmargin=10pt,
+    framesep=10pt
+}
 
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
+
+% Some generally useful packages that you may or may not need
+% \usepackage[toc, page]{appendix}
+% \usepackage{float}
+% \usepackage[T1]{fontenc}
+% \usepackage{makecell}
+% \usepackage{multicol}
+% \usepackage{soul}
+% \usepackage{textcomp}
+% \usepackage{wrapfig}
+% \usepackage{xcolor}
+% \usepackage{graphicx}
+% \usepackage{lmodern}
+% \usepackage{tcolorbox}
