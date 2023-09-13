@@ -1,29 +1,98 @@
 \graphicspath{{chapters/02_introduction/images}}
 \chapter{Introduction}
 
-% The Introduction provides the background to the research work (at least 5 pages, not more than 10).
+% The Introduction provides the background to the research work (at least 5 pages, not more than 10). 
 
-\section{Chromosome conformation capture and Hi-C}
-Hi-C, first introduced in 2009 [ADD REF], is a techique belonging to the broad family of chromosome conformation capture techniques. 
+\section{Epigenetic factors and chromatin organization}
+Albeit DNA sequence is what actually defines the sequence of the transcript obtained from each gene, it is well know that it is not the only factor regulating gene expression and, consequently, organism phenotype. There exist, in fact, multiple epigenetic factors, meaning factors that act upon gene expression regulation without being encoded directly by the DNA sequence. Some of these factors are heritable, while other are acquired throughout life. Epigenetic factors can be tissue specific and in fact they are a major player in cell differentiation. Among these factors there are DNA methylation, histone modifications and chromatin organization\cite{epigeneticbook2020}.
+% TODO: Add miRNAs? tbh I would not consider them
 
-All these techniques work by crosslinking, proximity ligation, removing crosslink and sequencing.
-% Explanation of the experiment type (and history?) 
+\subsection{DNA methylation}
+Although not the only one, DNA methylation is by far the most studied DNA modification. DNA methylation refers to the addition of methyl groups to the C-5 position of cytosine residues, especially those followed by a guanine residue (CpG sites). Cytosine methylation affects protein binding affinity, either increasing or decreasing it. It is regulated by a complex enzymatic machinery composed of writers (enzymes which add methyl groups), erasers (enzymes which remove methyl groups) and readers (proteins whose binding affinity to a region depends on its methylation state). Physiologically, DNA methylation is responsible for mechanisms such as silencing of retroviral elements, regulation of tissue-specific gene expression, genomic imprinting and X chromosome inactivation\cite{methylationgeneral2012, methylationhistoric2022}. When dysregulated, DNA methylation can cause or contribute to many pathological conditions, such as genesis and/or progression of cancer\cite{methylationcancer2016, methylationcancer2021} or other diseases such as stress and depression\cite{methylationdepression2023}, retinal diseases\cite{methylationretinal2023}, congenital hearth disease \cite{methylationheart2021} and many others\cite{epigeneticbook2020}.
 
-From the sequencing, chimeric reads are obtained; which 
+\subsection{Histone modifications}
+The DNA in the nucleus is not in a completely unwound state, but rather in a variably-condensed one called chromatin. Stretches of 145-147 bp of DNA are wrapped around proteic octamers composed of proteins called histones; these structures, called nucleosome, are the first level of chromatin condensation\cite{chromatinstructure2018}. Each histone is composed of a core portion, around which the DNA is wrapped, and a tail portion, which is 20-40 aminoacids long, exposed to the nucleosol. The aminoacidic composition of the tails is what confers them an electronic charge, impacting DNA binding and thus chromatin condensation level. It is in fact possible to define, on a mesoscale level, two types of chromatin, heterocromatin and eucromatin; the former is a more condensed state, and for this reason genes located within this region are less transcribed since transcription factors binding is impeded, while the latter is the less condensed state, favouring gene accessibility and transcription. The chromatin state of a genomic region can change overtime and one major factor in defining these shifts are covalent modifications of histone tails, notably acetylation, phosphorylation, methylation, SUMOylation and ubiquitination\cite{histonemodifications2020}. 
+% TODO: About pathology
 
+\subsection{Chromatin organization}
+The DNA sequence encodes both genes and gene regulatory elements such as enhancers and silencers. The presence itself of these elements though is not enough, since gene and regulatory element need to be in proximity of each other to act, either directly or through protein mediated contact. For this reason chromatin organization itself becomes an epigenetic factor, defining which genomic areas are accessible and which ones are close enough to interact with others. During interphase, chromatin organization is rather complex and characterized by different features depending on the scale it is analysed at\cite{chromatinorganization2019, chromatindevelopment2019}.
+
+At a very broad scale, chromatin is organized in chromosome territories and compartments. Interphasic chromosomes tend to occupy distinct regions of the nucleus, the so called chromosome territories. Within a chromosome territory, it is possible to distinguish transcriptionally active and inactive regions; regions of the same type tend to interact with each other forming compartments. Compartment A is mostly composed of transcriptionally active regions, with high gene density and active histone modifications. On the other hand compartment B is mostly composed of trascriptionally inactive regions, with lower gene density or gene deserts. Compartments and chromatin states are not necessarily overlapping, even though compartment A tends to be mostly composed of euchromatin and vice versa. Compartment A is frequently found in the interior nuclear space, organized around nuclear speckles, while compartment B is generally found at the periphery of the nucleus, in contact with the nuclear lamina, or close to the nucleolus.
+
+On a smaller scale one can identify two main structures, those being topologically associating domains (TADs) and loop domanis. A TAD is a region of the genome which forms contacts with itself more frequently that with other regions. [WHAT ARE THEY AND WHY ARE THEY IMPORTANT] A loop is a cohesin-mediated interaction between paired CCCTC-binding factor (CTCF) proteins. [AGAIN, EXACTLY WHAT ARE THEY AND WHY ARE THEY IMPORTANT]
+
+Finally at the lowest scale one can define promoter enhancer contacts [WHICH ARE EXACTLY WHAT YOU THINK THEY ARE.]
+
+WHY STUDYING CHROMOSOME CONFORMATION.
+
+% TODO: Add summary image with the mechanisms, probably one page wide
+
+\section{Ligation-based methods for the study of chromatin organization}
+
+There exist plenty of methods to study chromatin organization, which can be divided into imaging-based, ligation-based and ligation-free methods. Ligation-based methods stem from one original method, that is chromosome conformation capture, which has been overtime modified to increase resolution and throughput. From the derived methods, Hi-C was the first which allowed to study interactions on a genome-wide scale.
+
+\subsection{Chromosome conformation capture}
+Chromosome conformation capture (3C), the original ligation-based method, is a technique which allows to study interactions among genomic regions through chromatin crosslinking and proximity ligation\cite{3coriginal2002}. The main steps of the original protocol are the following:
+\begin{itemize}\tightlist
+  \item formaldehyde fixation of isolated, intact nuclei. Formaldehyde causes a crosslinking reaction which stabilizes protein-protein and protein-DNA interactions; this means that DNA regions will be in proximity to each other thanks to their protein mediated interactions. 
+  \item chromatin digestion through a restriction enzyme (EcoRI).
+  \item fragment ligation at very low DNA concentration. In this condition, ligation among DNA fragments crosslinked through proteins is heavily favoured, given that they will always be in proximity of each other.
+  \item crosslinking reversion and DNA purification.
+  \item quantitative PCR using locus specific primers. The contact frequency among two loci is given by the ratio with the quantity obtained through quantitative PCR on a control.
+\end{itemize}
+It is important to notice that this is a 1 vs 1 technique, meaning that only one pair of loci can be analysed at a time; moreover each comparison requires 2 quantitative PCRs (sample and control) and a pair of locus specific primers, thus requiring some prior knowledge of the target. For these reason the technique is very limited and was overtime modified to become 1 vs all (4C\cite{4cprotocol2006}), many vs many (5C\cite{5cprotocol2006}) and then finally all vs all with Hi-C.
+
+
+\subsection{Hi-C protocol}
+Hi-C was the first ligation-based method to allow a genome wide study of chromatin interactions. It differs from the original 3C technique mostly for nucleus lysis using sodium dodecyl sulfate (SDS), the usage of biotin to tag and enrich ligation products and for the usage of sequencing for quantification rather than quantitative PCR\cite{hicoriginal2009}. An optimization of the original Hi-C protocol is in situ Hi-C, whose main difference is that it does not perform nuclear lysis; this reduces the number of ligation events due to random interaction of DNA fragments in solution, while at the same time reducing the reaction volumes and increasing the number of captured interactions\cite{insituhic2014}. The in-situ Hi-C protocol can be summarised as follows:
+
+\begin{itemize}\tightlist
+  \item DNA crosslinking on intact nuclei
+  \item chromatin digestion through a restriction enzyme
+  \item fill sticky ends at the restriction sites with biotinilated nucleotides
+  \item proximity ligation
+  \item crosslinking reversion, DNA shearing (to 400 bp size) and fragment pulldown using streptavidin beads
+  \item pair-end sequencing to obtain chimeric reads
+\end{itemize}
+ 
+Altough in-situ Hi-C is the most common variant of the Hi-C protocol, it is not the only one. Of particular notice is Micro-C\cite{microc2015}, which uses micrococcal nuclease as a restriction enzyme for DNA digestion. This means that all linker DNA is degraded and only interactions among nucleosomes are kept. Given the smaller fragment size, this results in a higher resolution at shorter genomic distances, while long range interactions are poorly captured, making this technique complementary to Hi-C rather than a replacement.
+
+% TODO: Add image about the two protocols
+
+\section{Hi-C data storage and analysis}
+
+Handling Hi-C sequencing data is rather challenging for several reasons, both in terms of storage and analysis itself. This type of data requires different processing steps and file formats with respect to standard genomic DNA sequencing, requiring therefore specifically designed tools and algorithms. The following subsections cover the typical steps to obtain contact matrices strarting from sequencing raw data and some of the commonly performed analyses\cite{hicprocessing2018}. Then the most common formats for Hi-C data are presented.
+
+\subsection{Sequence alignment and binning}
+The sequencing step of a Hi-C procedure generally yields some billions of paired-end reads. The fragments from which the reads are derived are chimeric, meaning that they are composed of sequences from regions which are (typically) not genomically contiguous. For this reason it is assumed that the two paired-ends can be mapped independently using standard tools such as bowtie. Still, it is important to notice that, especially for longer reads, the junction among the two interacting genomic regions might fall within the read, making it chimeric. Chimeric reads are difficult to map and require apposite strategies which are implemented by Hi-C data specific tools in order to avoid losing a huge amount of information. The aligned reads are then filtered using both standard criteria, such as base quality and PCR artifacts, and Hi-C specific ones, such as self-ligation products, compatibility with undigested chromatin fragments\cite{readfiltering2013} or more elaborate ones\cite{complexfiltering2017}.
+
+Binning is the next main step performed; the genome is divided into regions, the bins, and each read is substituted with the bin it falls into. The objective of this procedure is to discretize the signal in order to reduce noise, since it is easier to define the contact frequencies among two regions if they have well defined boundaries (even though this comes with a reduction in resolution).
+Although using bins of variable size is an option, fixed-sized bins are the more common choice since they are easier to work with. The chosen bin size will affect the resolution of the final contact matrix. The bigger the bin size, the lower the resolution but the more robust the signal; conversely, the smaller the bin size, the higher the resolution but the noisier the signal. Virtually any bin size coul be used, though common sizes span the order of some kilobases (1-10 kb).
+
+\subsection{Normalization strategies}
+Several normalizations strategies for systematic biases in Hi-C data exist and none of them seems to be a clear cut winner with respect to the others\cite{normalization2020}. These methods can be divided into explicit and implicit methods. 
+
+Explicit methods are methods which correct for a clearly defined set of systematic biases, such as GC content and mappability. The biases are assumed to be independent from each other; thus, for each bias, a normalization factor is computed for each bin, then the normalization factors are combined to obtain the overall bin normalization factor.
+
+Implicit methods are menthods which do not clearly state the systematic biases to correct for. Their assumption is that all systematic biases are recapitulated by sequencing depth, and therefore, making sequencing depth comparable among bins using matrix balancing, should correct for all of them (whether they are known or not). This in turn implies that all genomic regions form the same number of interactions and that there is the same number of copies of each region in the genome (no aneuploidies). Among matrix-
+
+
+Among these methods, some of the most common ones are iterative correction and eigenvector decomposition (ICE)\cite{ice2012} and Knight-Ruiz (KR)\cite{knightruiz2012}; both of them are matrix balancing algorithms that rely on the assumption that systematic sequencing biases, such as GC content, are bin specific and fully recapitulated by sequencing depth. This roughly translates into the assumption that all bins should have the same sequencing depth and thus some normalization coefficient is computed for each bin using only sequencing depth, then each pixel is corrected using the normalization factors of its two bins. Aside from the fact that this assumption seems rather forceful, these methods are individual-sample normalization approaches and they are generally outperformed by cross-sample normalization ones, especially in regards of reproducibility. Still, individual-sample normalization approaches have the major advantage of usually being significantly faster, also considering the fact that one file has to be normalized only once regardless of how many analyses and comparisons will be performed on it. 
+
+\subsection{Contact matrices and ijv format}
 As mentioned, chromosome conformation capture experiments lead to the creation of contact matrices, meaning matrices with genomic regions as rows and columns, while each cell represents the number of contacts that have been found among the genomic regions specified by its row and column. Assuming that the entire genome of the analyized organism has been 
 
 Up to contact matrix
 Resolution etc
 Contact matrices are usually displayed as heatmaps, with each square representing the intensity of the contact between a specific pair of genomic regions.
 
-\section{Cooler format}
 While the dense form of the contact matrix is convenient for visualization purposes, it is not for its storage. The size of the dense matrix scales quadratically with the number of bins the genome has been divided into; with an itermediate bin size of 10 kb, a contact matrix corresponding to the entire human genome has around $10^{11}$ cells. A dense matrix of this size quickly becomes hard to handle, especially as the resolution increases.
 Given that the contact matrix is symmetric (the bin contacts are not directional), only the upper triagular part of it can be stored. Moreover, it is important to consider that it is a very sparse matrix, with usually less than 0.5\% of the cells having value greater than zero. % REF WOULD BE NICE
 For these two reasons, a more memory efficient way of storing it is the \emph{ijv} format, meaning a tabular format where each row contains the two coordinates of the cell and the value associated to it, and only cells with a value greater tha zero are saved.
 A plain text represetation of this table would be too limiting in terms of I/O speed and thus indexed and compressed binary files are used instead. HDF5 is a binary file format organized hierachically just like a file system, with groups corresponding to folders and datasets corresponding to files. Both groups and tables can be associated with some metadata. % MAYBE A BIT MORE ON THIS
 
-The cooler format was introduced by Abdennur and Mirny\cite{cooler2020} in order to facilitate the storage and retrieval of Hi-C data (or any other type of genomically labeled array). A cooler file is a HDF5 with a specific structure; each file contains 4 main groups:
+\subsection{Cooler format}
+The cooler format was introduced in order to facilitate the storage and retrieval of Hi-C data (or any other type of genomically labeled array)\cite{cooler2020}. A cooler file is a HDF5 with a specific structure; each file contains 4 main groups:
 \begin{itemize}\tightlist
   \item bins, containing information on the intervals the genome was binned into.
   \item pixels, containing the actual contact matrix in \emph{ijv} form.
@@ -43,10 +112,23 @@ An individual \texttt{.cool} file contains only one pixels table at one resoluti
 
 % TODO: Explain how coolers are obtained by merging multiple files at multiple resolutions
 
-% TODO: Check whether it fits here or distance normalization subsection
-Several normalizations strategies for systematic biases in Hi-C data exist and none of them seems to be a clear cut winner with respect to the others \cite{normalization2020}. Among these methods, some of the most common ones are iterative correction and eigenvector decomposition (ICE) \cite{ice2012} and Knight-Ruiz (KR) \cite{knightruiz2012}; both of them are matrix balancing algorithms that rely on the assumption that systematic sequencing biases, such as GC content, are bin specific and fully recapitulated by sequencing depth. This roughly translates into the assumption that all bins should have the same sequencing depth and thus some normalization coefficient is computed for each bin using only sequencing depth, then each pixel is corrected using the normalization factors of its two bins. Aside from the fact that this assumption seems rather forceful, these methods are individual-sample normalization approaches and they are generally outperformed by cross-sample normalization ones, especially in regards of reproducibility. Still, individual-sample normalization approaches have the major advantage of usually being significantly faster, also considering the fact that one file has to be normalized only once regardless of how many analyses and comparisons will be performed on it. 
+
+\subsection{Hi-C data analysis}
+[TAD AND LOOP CALLING, MAYBE OTHER]
+
+% TODO: Definitely image of contact matrices (maybe highlighting TAD and LOOP)
+% TODO: Definitely image of file structure of cool file
 
 \section{Network analysis}
 
+[INTRO, also semantic of network-graph]
 % What is network analysis, graph definition, advantages etc
+
+\subsection{Graph theory concepts}
 % TODO: Add node strenght definition
+[NODE STRENGTH, NEIGHBOURHOOD, ETC.]
+
+\subsection{Advantages of network analysis}
+[LIST THEM AND CURRENT USES IN OTHER FIELDS]
+
+% TODO: Some image for network analysis
