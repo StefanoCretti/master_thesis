@@ -15,7 +15,7 @@ Hi-C Organization Network Analysis (HiCONA) is a \textbf{Python3 package} compat
 \begin{itemize}\tightlist
   \item A fully \textbf{object-oriented programming} (OOP) approach is used to keep the functions organized and make it easy to extend with further functionalities.
   \item Well established file formats are used for both input and output, in order to facilitate package \textbf{integration} into already exhisting analysis pipelines.
-  \item All operations are \textbf{optimized} both in terms of memory usage and computational runtime, in such a way that almost any file can be quickly processed even on less performing systems such as laptops. This is achieved by chunking, vectorizing and parallelizing operations.
+  \item All operations are \textbf{optimized} both in terms of memory usage and computational runtime, in such a way that almost any file can be quickly processed even on less performing systems such as laptops. This is mostly achieved by chunking and vectorizing operations.
 \end{itemize}
 HiCONA is mostly built on top of two main packages, those being \emph{cooler} and \emph{graph-tool}. \textbf{\emph{Cooler}} is a library designed to work with \texttt{.cool} files\cite{cooler2020}; from its Python API, HiCONA extends the main object class \texttt{Cooler} into \texttt{HiconaCooler}, which is responsible for data I/O, preprocessing and bin annotation. \textbf{\emph{Graph-tool}} is a Python package for network analysis\cite{graphtool2014}; it is highly optimized and fast since all algorithms and data structures are implemented in C++. The \texttt{Graph} object class from \emph{graph-tool} is extended into \texttt{HiconaGraph}, which is responsible for network manipulation and analysis. Other major packages HiCONA relies on are \emph{scipy}\cite{scipy2020} for integral computation, \emph{numpy}\cite{numpy2020} for algorithm implementation, \emph{pandas}\cite{pandas2020} for data manipulation, \emph{pybedtools}\cite{pybedtools2011} for bin annotation, \emph{seaborn}\cite{seaborn2021} and \emph{matplotlib}\cite{matplotlib2007} for plotting. Aside from the previously mentioned \texttt{HiconaCooler} and \texttt{HiconaGraph} classes, HiCONA also implements a \texttt{ChromTable} class to facilitate conversion among the two and some utility classes such as custom iterators for these object types.
 
@@ -30,6 +30,8 @@ HiCONA implements everything which is needed to perform network analysis startin
 % TODO: maybe place the following statement somewhere
 % the package should work even with chip-seq data or any other type of data which can be represented in cool format, but this has yet to be tested).
 % TODO: Replace in image the placeholder pics
+% TODO: Columns of last tables in part (a) of th epic are actually wrong
+
 \begin{figure}
   \centering
   \includegraphics[width=0.85\textwidth]{package_flowchart.png}
@@ -81,7 +83,7 @@ Notice how all considerations up till this point are applicable only to \textbf{
 
 \subsection{Pixel sparsification score computation}
 
-The normalized chromosome-level pixel tables could already be converted into networks; that being said, the resulting networks would be rather big ([ADD AVE NUM NODES AND EDGES]) and noisy (many edges with very low weight). In order to mitigate this problems, a network sparsification algorithm\cite{sparsification2009} is used; the objective of the procedure is to sparsify the network, e.i. reducing the number of edges in the graph, while retaining the overall topological properties and structure of the network.
+The normalized chromosome-level pixel tables could already be converted into networks; that being said, the resulting networks would be rather big (about $7 \cdot 10^7$ edges) and noisy (many edges with very low weight). In order to mitigate this problems, a network sparsification algorithm\cite{sparsification2009} is used; the objective of the procedure is to sparsify the network, e.i. reducing the number of edges in the graph, while retaining the overall topological properties and structure of the network.
 
 While standard top-n edge filtering keeps only the top n scoring edges according to their weight, network sparsification keeps the edges which are contributing the most in defining the first order neighbourhoods of the nodes in the graph. This means that edges with relatively low weight but very high contribution in defining the local structure of the network are kept using network sparsification, while they would not be using top-n edge filtering. This is important when trying not to belittle nodes with lower strength.
 
