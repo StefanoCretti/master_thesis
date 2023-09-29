@@ -38,7 +38,7 @@ HiCONA implements everything which is needed to perform network analysis startin
 Pixel preprocessing includes all steps required to go from the full pixel table contained in a \texttt{.cool} file to one or more chromosome-level pixel tables, which are normalized subsets of the full table stored in the \texttt{.cool} file for later usage in network creation.  
 Pixel preprocessing is a key step in order to be able to conduct downstream analyses, especially those requiring the comparison of different experiments and/or replicates. In order to guarantee consistent preprocessing, the procedure is fairly streamlined; all steps are handled by a single public method of the \texttt{HiconaCooler} class (\texttt{create\_tables}), to which the user can pass arguments if they want to superseed the default parameter values. For most applications, the default values should already be the optimal ones. If no default value is superseeded, one chromosome-level pixel table for each chromosome will be created using those defaults. The preprocessing steps, described in the following subsections, are shown in the context of the usage flowchart in figure \ref{fig:flowchart} (a).
 
-\subsection{Pixel filtering}
+\subsection{Pixel filtering}\label{par:pixfiltering}
 
 The initial preprocessing step is the retrieval and filtering of subsets of the pixels from the whole pixel table. For each specified chromosome (or all of them if no specific one is selected), a table containing all pixels whose first bin falls into that chromosome is created. Each of these tables is then filtered in order to remove:
 
@@ -78,7 +78,7 @@ Optionally, the user can specify a percentile as filter; all pixels whose normal
  
 All considerations up till this point are applicable only to \textbf{intra-chromosomal pixels}. This is because it is not possible to define a notion of genomic distance for inter-chromosomal ones. Still, \texttt{cooltools} does give the option of computing the expected counts for inter-chromosomal pixels; given a pair of chromosomes, the expected counts are given by the average of all pixels counts where one bin belongs to one chromosome and one bin belongs to the other. HiCONA could implement a similar method for inter-chromosomal pixel normalization but it currently does not. This is because, ultimately, the normalized values are used to compute the edge weights; if both inter and intra-chromosomal pixels were to be kept, the network would contain edges whose weights were computed using different procedures, and therefore there would not be a way to guarantee that the comparison is fair. For this reason, and those listed previously, all inter-chromosomal pixels are removed.
 
-\subsection{Pixel sparsification score computation}
+\subsection{Pixel sparsification score computation}\label{par:sparscore}
 
 The normalized chromosome-level pixel tables could already be converted into networks; that being said, the resulting networks would be rather big in size (about $7 \cdot 10^7$ edges) and noisy (many edges with very low weight). In order to mitigate this problems, a network sparsification algorithm\cite{sparsification2009} is used; the objective of the procedure is to sparsify the network, e.i. reducing graph density (the number of edges in the graph), while retaining most of the overall topological properties and structure of the network.
 
