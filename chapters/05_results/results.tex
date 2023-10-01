@@ -15,7 +15,7 @@ As another remark, each preprocessing function works with exactly one chromosome
 
 \subsection{Normalization factor computation}
 
-Pixels whose bins are close in the genome tend to have significantly higher counts than pixels whose bins are far apart just due to random interactions; it is thus needed to penalized short-range interactions to allow for a fair pixel comparison during filtering and sparsification. In order to normalize for genomic distance, it is necessary to compute some summary statistic $P(d)$, with $d$ being genomic distance, to use as normalization factor (e.i. denominator of a fold change); here we compare the statistics obtained using cooltools and HiCONA (for the formulas refer to the Matherials and Methods chapter). 
+Pixels whose bins are close in the genome tend to have significantly higher counts than pixels whose bins are far apart just due to random interactions; it is thus needed to penalized short-range interactions to allow for a fair pixel comparison during filtering and sparsification. In order to normalize for genomic distance, it is necessary to compute some summary statistic $P(d)$, with $d$ being genomic distance, to use as normalization factor (e.i. denominator of a fold change); here we compare the statistics obtained using cooltools and HiCONA (for the formulas refer to subsection \ref{par:distnorm}). 
 
 % Plot of Hicona expected count vs cooltool ones
 \begin{figure}[ht]
@@ -77,8 +77,8 @@ The ideal combination of parameters to use for filtering is one that allows to r
 
 After pixel filtering, the sparsification scores (alpha values) are computed for each pixel as discussed in subsection \ref{par:sparscore}. HiCONA computes and stores both alpha values for each edge, in order to be able to used either the minimum or the maximum of the two. To perform the actual sparsification, an alpha cutoff must be defined, either an arbitrary one or the one defined by HiCONA as optimal, that is the chromosome-level threshold which minimizes the number of edges while maximising the number of nodes. This value is computed using a local search algorithm; one example of the grid of values tested by a run of the local search in shown in figure \ref{fig:alphas}.
 
-For each chromosome the local search is actually run twice, one using the minimal alphas, one using the maximal ones
-Typically, the minimum and the maximum alpha thresholds for the same chromosome are almost always different, though they still tend to be very close to each other. The typical range for the optimal alpha values is between 0.15 and 0.30. Chromosome Y is an exception. 
+For each chromosome the local search is actually run twice, once using the minimal alphas, once using the maximal ones. The curve which is obtained
+Typically, the two alpha thresholds for a chromosome are different, though they still tend to be very close to each other ($\pm 0.03$). The typical range for the optimal alpha threshold is between 0.15 and 0.30. Chromosome Y is an exception. 
 
 % Plot alpha computation grid for some file (maybe multiple sets of params)
 \begin{figure}[h]

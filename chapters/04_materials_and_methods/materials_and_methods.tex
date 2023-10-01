@@ -53,7 +53,7 @@ Notice that, the way the initial subsetting is performed, not all inter-chromoso
 
 As of now, subsetting is supported only at chromosome-level and this is because subsetting on arbitrary genomic coordinates would lead to some issues. Even though the preprocessing procedure would work without issues (given that it is chunked), subsetting on a region larger than a chromosome could lead to extremely big networks downstream which would be difficult to handle; moreover, unless the inter-chromosomal filter is removed, the two chromosomes would be disconnected anyway. On the other hand, subsetting on a region smaller than a chromosome would skew the sparsification procedure, since it would arbitrarely remove some connections of the bins. Arbitrary subsetting might be added in the future if a compelling reason is found.
 
-\subsection{Pixel distance normalization}
+\subsection{Pixel distance normalization}\label{par:distnorm}
 % TODO: Maybe say why HiCONA does not perform systematic bias normalization. PROBABLY JUST EXPLAIN THAT THE GENOMIC DISTANCE IS BY FAR THE HIGHEST CAUSE FOR CONTACT NUMBERS. MOREOVER DIFFICULT TO NORMALIZE IN GC CONTENT IF THE REGION IS FAIRLY BIG.
 
 A very important notion to keep into account, while preprocessing this type of data, is pixel genomic distance, which is the \textbf{genomic distance} among the two bins composing the pixel. Formally, this can be defined as 
