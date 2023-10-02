@@ -98,7 +98,18 @@ Typically, the two alpha thresholds for a chromosome are different, though they 
 \section{Pixel preprocessing performance}
 
 \subsection{Time benchmark}
+Time benchmarking was performed analysing the wall-time required to process each file using a certain set of parameters. The sparsification scores computation step is by far the most computationally intensive step, to the point where the time required by the other operations is basically negligible; in fact, as shown in figure \ref{fig:timebenchmark}, the time required for the file to be processed correlates with the number of pixels remaining after the filtering step. From the sparsification algorithm we expect the relation to be linear, since the number of integrals to be computed is twice the number of pixels remaining after filtering. Still, by taking advantage of the fact that most integrals are repeated, it is possible to drastically reduce the number which is computed. Since each integral only depends on the number of neighbours and the normalized edge weight (see \ref{par:sparscore}), a \texttt{pandas.DataFrame.groupby()} on those two columns was performed in order to obtain the set of unique combinations; then, after computing the integral for each combination, the values are associated back to the pixels by using a \textit{left-outer-join} merge. Though the same integral is computed multiple times if it appears in multiple chunks of the table being processed, this way it it possible to compute, on average, only 65,000 integrals per million of filtered pixels.
+
+From the right panel of figure \ref{fig:timebenchmark}, it is visible that, for each genomic distance threshold applied, there is a linear dependency between number of filtered pixels and required time, though these dependencies can have quite different slopes. In general, it seems that, the lower the genomic threshold, the steeper the slope; though not fully understood, it seems that lower genomic threshold lead to the presence of more unique integrals, therefore causing the runtime to be slower. Still, it should be noticed that standardly-sized files, such as H1hESC, HUVEC and HMEC, are processed in less than an hour, while GM and IMR90, which are usually used as examples of very big files for Hi-C, are still processed in less than 3 hours. 
+
 % Plot number of filtered pixels vs time (linear)
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{time_benchmark.png}
+  \caption{\textbf{Pixel preprocessing time benchmark}. Time required to compute the sparsification scores for each file, with different parameter combinations, as a function of the number of pixels remaining after filtering. As one might expect, there appears to be a linear correlation between number of pixels to process and time required; the slope of the correlation is dependent on the applied distance threshold.}
+  \label{fig:timebenchmark}
+\end{figure}
+
 \subsection{Memory benchmark}
 % Plot of the run of a single file using memprof
 
