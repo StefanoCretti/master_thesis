@@ -1,10 +1,36 @@
 \graphicspath{{chapters/06_discussion/}}
 \chapter{Discussion}
 
-The Discussion section contains a critical analysis of the results obtained and frames them
-in the context of the international literature (at least 5, maximum 10 pages).
+% The Discussion section contains a critical analysis of the results obtained and frames them in the context of the international literature (at least 5, maximum 10 pages).
 
-% TODO: Maybe move in the discussion?
-In the animal-community studies field, it has been discussed for a while how node-labels permutation does not actually perform as well as initially though given that most permutations do not satisfy the joint probabilities smth smth dont remember exactly [FIX] \cite{nullmodel2017}; fairly recently, a theoretical proof that node-label permutation perform exactly like non-network-based parametric methods has been published [ADD REFERENCE]. That being said, the network approach INSERT REASON WHY THE NETWORK APPROACH IS STILL GOOD, LIKE INTERPRETABILITY AND SUCH.
+% START WITH PANCALDI 
 
-Moreover, contrast subgraphs \cite{contrast2020, contrast2023}, a more recent algorithm with promising biological perspectives, has also been implemented.
+% Biological experiment suck; need better experiments
+
+% We do not normalize for sequencing biases 
+
+% How to improve the implementation; what can be done to speed it up (polars, parallelization, better integral cache)
+% Package is being developed, documentation is being made with sphynx
+
+% Change penalties for distance normalization? Cause of the wide band that there is in the heatmap around the diagonal
+
+% Is filtering even needed?
+% Incorporating distance in network sparsification algorithm?
+
+% Way for better distance kept?
+
+
+When processing a file with a specific set of filtering parameters, regardless of the usage of \textit{cooltools} or HiCONA, one summary statistic function is computed for each individual chromosome. This is done to avoid relying on the assumption that random contact probability decays at the same rate in all chromosomes. One might argue that considering all pixels jointly would yield a more robust and less noisy function; while that would indeed be the case, each chromosome has enough pixels to obtain a robust result on its own (aside from chromosome Y due to its significantly smaller size and probably other biological motivations).
+
+As a side note, the arbitrary cutoff of 0.05 as sparsification score threshold was tested too; this is because sparsification scores are themselves p-values, thus it seems natural to try and use the standard 0.05 threshold. That being said, this cutoff is far too restrictive with any combination of parameters, to the point where just a couple hundreds of pixels are retained, at most, for each file. This threshold is therefore not appropriate for this application, and in fact, even the original paper which introduced the algorithm proposed the use of looser thresholds. It must be remarked once more that the objective of this procedure is not to determine the definitely significant pixels themselves, but rather sparsify the network by removing the least significant ones to achieve a network of a manageable size (while still reasonably connected). 
+
+\section{Implemented analysis algorithms}
+
+\subsection{Node-labels permutation}
+% It does not work cause why would it
+
+% In the animal-community studies field, it has been discussed for a while how node-labels permutation does not actually perform as well as initially though given that most permutations do not satisfy the joint probabilities smth smth dont remember exactly [FIX] \cite{nullmodel2017}; fairly recently, a theoretical proof that node-label permutation perform exactly like non-network-based parametric methods has been published [ADD REFERENCE]. That being said, the network approach INSERT REASON WHY THE NETWORK APPROACH IS STILL GOOD, LIKE INTERPRETABILITY AND SUCH.
+
+\subsection{Contrast subgraphs}
+
+% Moreover, contrast subgraphs \cite{contrast2020, contrast2023}, a more recent algorithm with promising biological perspectives, has also been implemented.
