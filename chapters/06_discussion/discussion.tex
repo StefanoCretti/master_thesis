@@ -24,6 +24,8 @@ When processing a file with a specific set of filtering parameters, regardless o
 
 As a side note, the arbitrary cutoff of 0.05 as sparsification score threshold was tested too; this is because sparsification scores are themselves p-values, thus it seems natural to try and use the standard 0.05 threshold. That being said, this cutoff is far too restrictive with any combination of parameters, to the point where just a couple hundreds of pixels are retained, at most, for each file. This threshold is therefore not appropriate for this application, and in fact, even the original paper which introduced the algorithm proposed the use of looser thresholds. It must be remarked once more that the objective of this procedure is not to determine the definitely significant pixels themselves, but rather sparsify the network by removing the least significant ones to achieve a network of a manageable size (while still reasonably connected). 
 
+It should be mentioned that currently HiCONA does not perform any form of parallelization explicitly, though some operations are implicitly parallelized by \textit{pandas} or \textit{cooler}. A pretty substantial speed up could be obtained by processing the chromosomes in parallel, considering the fact that they are independent from each other. The Python library \textit{h5py}, used to work with \texttt{.hdf5} files in Python, is implemented with several file locks to prevent corrupting the file while working on it; this makes parallel writing rather difficult, and considering that the processing times are already quite fast, it was not marked as a priority.
+
 \section{Implemented analysis algorithms}
 
 \subsection{Node-labels permutation}
