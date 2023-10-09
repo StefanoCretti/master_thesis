@@ -21,7 +21,7 @@ Pixels whose bins are close in the genome tend to have significantly higher coun
 \begin{figure}[ht]
   \centering
   \includegraphics[width=1\textwidth]{hicona_vs_cooltools.png}
-  \caption{\textbf{Comparison of summary statistics from HiCONA and cooltools}. Comparison of the genomic distance normalization factors for chromosome 1 of one replicate of IMR90 cells (4DNFIMU9T2QI), at 10 kb resolution, filtered using 200 Mb as genomic distance threshold, obtained using HiCONA and cooltools. On the left, normalization factor with respect to distance in log-log scale, on the right the same plot but without log-transform of the y-axis.}
+  \caption{\textbf{Comparison of summary statistics from HiCONA and cooltools}. Comparison of the genomic distance normalization factors obtained using Hicona and cooltools on chromosome 1 of one replicate of IMR90 cells (4DNFIMU9T2QI), at 10 kb resolution, filtered using 200 Mb as genomic distance threshold. On the left, normalization factor with respect to distance in log-log scale, on the right the same plot but without log-transform of the y-axis.}
   \label{fig:cooltools}
 \end{figure}
 
@@ -38,7 +38,7 @@ After computing the normalization factors, the pixels are normalized (see subsec
 % Plot from first lab meeting with distribution prior and after normalization
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.8\textwidth]{normalization_stats.png}
+  \includegraphics[width=0.75\textwidth]{normalization_stats.png}
   \caption{\textbf{Comparison of pixels counts distribution prior and post genomic distance normalization}. Comparison of the distribution of raw and normalized counts at each genomic distance for chromosome 1 of one replicate of IMR90 cells (4DNFIMU9T2QI), at 10 kb resolution, filtered using 200 Mb as genomic distance threshold. At the top, quantiles of the raw counts distribution for each genomic distance. In the middle, quantiles of the normalized counts distribution for each genomic distance. At the bottom, total number of pixels, and number of pixels with raw count equal to 1, for each genomic distance.}
   \label{fig:normstats}
 \end{figure}
@@ -49,7 +49,7 @@ In figure \ref{fig:normstats} we can observe how the counts distribution changes
 
 The preliminary step of pixel filtering is to remove inter-chromosomal pixels. As explained in subsection \ref{par:pixfiltering}, this is because it is not possible to define genomic distance across chromosomes, and therefore these pixels cannot be processed in a comparable way with respect to the intra-chromosomal ones. This step removed, on average, 53.27\% of pixels from the files at 10 kb resolution, 45.62\% of pixels from those at 5 kb resolution.
 
-All the intra-chromosomal pixels for a single chromosome are then filtered. First, self-looping pixels are removed. Subsequently, pixels with genomic distance above a specified threshold are removed. The partially filtered chromosome-level table is then normalized as discussed in the previous subsection. Finally, the normalized table is filtered using a quantile threshold: the value corresponding to a specified quantile of the normalized counts is computed, then all pixels whose normalized counts value is equal to or below it are removed.
+All the intra-chromosomal pixels for a single chromosome are then filtered. First, self-looping pixels are removed. Subsequently, pixels with genomic distance above a specified threshold are removed. The partially filtered chromosome-level table is then normalized as discussed in the previous subsection. Finally, the normalized table is filtered using a quantile threshold: the value corresponding to a specified quantile of the normalized counts is computed, then all pixels with normalized counts equal to or below it are removed.
 
 In figure \ref{fig:filtering}, some chromosome filtering statistics, aggregated by file, are shown. In each of the panels, the boxes are divided into groups, each one corresponding to a genomic distance threshold, which were sorted from left to right by increasing strictness. Within each group of boxes, each box corresponds to a quantile threshold, once again sorted from left to right in each group by increasing strictness.
 

@@ -76,7 +76,7 @@ Although in-situ Hi-C is the most common variant of the Hi-C protocol, it is not
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.98\textwidth]{hic_pipeline.png}
-  \caption{\textbf{Hi-C data generation and analysis workflow}. Steps required to generate Hi-C data files using the in situ Hi-C protocol and the basic sequencing data preprocessing. (a) Main steps of an in situ Hi-C experiment. (b) In-silico steps to generate Hi-C data files starting from the raw paired-ends sequencing reads.}
+  \caption{\textbf{Hi-C data generation and analysis workflow}. Steps required to generate Hi-C data files using the in situ Hi-C protocol and the basic sequencing data preprocessing. (a) Main steps of an in situ Hi-C experiment. (b) In-silico steps to generate Hi-C data files from raw paired-ends sequencing reads. \textit{Figure created using some elements from BioRender.}}
   \label{fig:pipeline}
 \end{figure}
 
@@ -104,7 +104,7 @@ The \textbf{\emph{ijv} table} is a format which allows for efficient Hi-C data s
 \begin{figure}[ht]
   \centering
   \includegraphics[width=1\textwidth]{contact_matrix.png}
-  \caption{\textbf{Contact matrix and ijv table}. (a) Graphical comparison between contact matrix (left) and ijv table (right). (b) Chromatin structures which can be observed through a contact matrix at different scales. From left to right: chromosome territories, compartments, TADs, loops.}
+  \caption{\textbf{Contact matrix and ijv table}. (a) Graphical comparison between contact matrix (left) and ijv table (right). (b) Chromatin structures which can be observed through a contact matrix at different scales. From left to right: chromosome territories, compartments, TADs, loops. \textit{Images from Wolff et al., 2022\cite{loopshic2022} and from Kempfer and Pombo, 2019\cite{chromatinorganization2019} were adapted to create the figure.}}
   \label{fig:contacts}
 \end{figure}
 
@@ -159,7 +159,7 @@ A graph is a mathematical object $G$ defined over a set of vertices, or nodes, $
 
 An edge is a pair of vertices belonging to the graph. If the pairs of vertices are ordered, meaning that $(v_1,v_2)$ and $(v_2, v_1)$ are distinct, the graph is said to be directed; conversely, if the pairs are not ordered, meaning that $(v_1,v_2) \equiv (v_2, v_1)$, the graph is said to be undirected. Moreover, if a weight is assigned to each edge, the graph is called weighted, else it is called unweighted. The different types of graph are shown in figure \ref{fig:networks} (a).
 
-The degree of a node is the number of incident edges, meaning the number of edges touching it; if the graph is directed, one can distinguish between out-degree and in-degree, those being the number of times the node appears as the first or second element in the ordered pairs, respectively. The neighbors of a node are the nodes which are directly connected to it by an edge (i.e. both nodes are incident to the same edge); the set of neighbors of a node is collectively referred to as neighborhood. In a weighted graph, node strength is the sum of the weights of all incident edges. 
+The degree of a node is the number of incident edges, meaning the number of edges touching it; if the graph is directed, one can distinguish between out-degree and in-degree, those being the number of times the node appears as the first or second element in the ordered pairs, respectively. The neighbors of a node are the nodes directly connected to it by an edge (i.e. both nodes are incident to the same edge); the set of neighbors of a node is called neighborhood. In a weighted graph, node strength is the sum of the weights of all incident edges. 
 
 Graph density is a measure of how interconnected the nodes of the graph are on a global scale; graph density is defined as the number of edges present in the graph over the number of possible edges for that graph, which is $|V|(|V|-1)/2$ in the undirected case, $|V|(|V|-1)$ in the directed one. 
 % Connected components?
