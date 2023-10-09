@@ -24,12 +24,9 @@ HiCONA implements everything which is needed to perform network analysis startin
   \item \textbf{Network generation and analysis}, which comprehends the creation of the graph object from the preprocessed chromosome-level pixel table and all the network analyses conducted on it.
 \end{itemize} 
 
-% TODO: Replace in image the placeholder pics
-% TODO: Columns of last tables in part (a) of th epic are actually wrong
-
 \begin{figure}
   \centering
-  \includegraphics[width=0.85\textwidth]{package_flowchart.png}
+  \includegraphics[width=1\textwidth]{package_flowchart.png}
   \caption{\textbf{HiCONA package flowchart}. Typical steps required for Hi-C data analysis using HiCONA. (a) Pixel preprocessing steps. Starting from the complete contact matrix, filter, normalize and compute the sparsification scores of the pixels. The end result is a reduced pixel table ready for conversion to network. (b) Bin annotation manipulation steps. All steps needed to add, remove or modify the optional bin annotation columns present in the file. (c) Network generation and analysis steps. Combine the prepared pixel table subsets with the bin annotations to create networks which can be analyzed with a multitude of algorithms.}
   \label{fig:flowchart}
 \end{figure}
@@ -212,7 +209,7 @@ Several datasets have been used for benchmarking purposes, all of which are avai
   \item Total file size takes into account bin annotations, which can take a huge amount of space (especially when categorical with many modalities, such as names, since they have to be stored as strings) and do not impact preprocessing run time.
 \end{itemize}
 
-The procedure was tested on data coming from different cell lines processed with the same restriction enzyme, as well as on data coming from the same cell line processed with different restriction enzymes. This is to start testing whether cell type and restriction enzyme introduce noticeable bias; still, a more in depth analysis, with multiple files per combination of cell type and restriction enzyme, would be needed for a definite answer to this question. For two cell types, GM12878 and IMR90, the biological and technical replicates, which were merged to obtain the full-size files, are also analyzed individually; this is to test how reproducible the procedure is on replicates, as well as how similar the processed full-size files are to the processed individual replicates. This last point is of particular interest since a high concordance would mean that the same results could be obtained by performing less experiments and sequencing, reducing costs for a technique which is rather expensive. 
+The procedure was tested on data coming from different cell lines processed with the same restriction enzyme, as well as on data coming from the same cell line processed with different restriction enzymes. This is to start testing whether cell type and restriction enzyme introduce noticeable bias; still, a more in depth analysis, with multiple files per combination of cell type and restriction enzyme, would be needed for a definite answer to this question. For two cell types, GM12878 and IMR90, the biological and technical replicates, which were merged to obtain the full-size files, are also analyzed individually; this is to test how reproducible the procedure is on replicates, as well as how similar the processed full-size files are to the processed individual replicates. This point is of particular interest since a high concordance would mean that the same results could be obtained by performing less experiments and sequencing, reducing costs for a technique which is rather expensive. 
 
 The package is designed to work with \texttt{.cool} files as input, since the main objective is the analysis of Hi-C data; still, any type of data representable in \texttt{.cool} format can be analyzed, therefore the package has also been tested on a data file coming from another technique, namely Micro-C.
 
