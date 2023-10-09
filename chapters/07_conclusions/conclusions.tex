@@ -1,8 +1,6 @@
 \graphicspath{{chapters/07_conclusions/}}
 \chapter{Conclusions}
 
-% The Conclusions and future perspectives section briefly summarizes the key outcome of the project and outlines any future directions (at least 1 page, not more than 2 pages).
-
 This thesis introduces HiCONA which is a Python3 package aimed at providing a flexible, user-friendly and efficient framework for the network analysis of Hi-C data. This package was created because, despite the potential insights that this type of analysis could provide, there are currently no options to perform versatile and comprehensive network analysis on Hi-C data. The main reason for this lack of tools is the nature of the data obtained from Hi-C experiments; though the conversion of this data into graphs is almost trivial, the results are high-order and very dense networks, sometimes too big to even fit into memory, which is rather difficult to work with.
 
 To address this need, the package provides multiple functionalities, which can be divided into network generation, network annotation and network analysis. Network generation includes all of those steps allowing to convert a .cool file, a standard format for the storage of Hi-C data, into multiple chromosome-level networks, with nodes representing genomic regions and edges representing the contacts among them. Network annotation comprehends functions to add, remove and manipulate bin annotations. Network analysis provides both general network analysis algorithms, by interfacing with the \textit{graph-tool} library, as well as custom implementations of more specific algorithms. 

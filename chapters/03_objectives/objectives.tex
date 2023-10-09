@@ -1,8 +1,6 @@
 \graphicspath{{chapters/03_objectives/}}
 \chapter{Objectives}
 
-% The Objectives section summarizes the project rationale, the scientific hypothesis and the key experiments that have been planned to test the hypothesis (at least 1 page, not more than 2 pages).
-
 Hi-C data is intrinsically hard to process due to several factors, among which the fact that it is represented by a huge, extremely sparse, upper triangular matrix; this leads to challenges both in terms of memory management and computational runtime, as well as processing in general. There exist some tools which allow to work with this type of data, notably those grouped under the Open Chromosome Collective\cite{openchromosomecollective}. Among these, cooler\cite{cooler2020} is used to handle data storage, while cooltools\cite{cooltools2022} can be used for general preprocessing and certain specific types of analysis (compartment and boundaries definition, feature and pattern pileup). 
 
 Nevertheless, at the time of writing, it seems that very few tools for network analysis of Hi-C data exist yet\cite{chromatinnetworks2023}. This is probably because Hi-C data can be converted into very dense and high order networks, which are memory-demanding and difficult to handle. For this reason only standard analyses which have been optimized for memory efficiency can be currently conducted on them. Still, this is quite unexpected, given the fact that Hi-C contact matrices are examples of adjacency matrices, which are natural representations of graphs. Rephrasing for clarity, Hi-C contact matrices can be easily converted into weighted, undirected graphs, with nodes representing the bins in which the genome has been divided into, and edges representing the contacts among those regions. The weights of the edges can be defined as the raw numbers of contacts obtained from sequencing or (better) some normalized measure derived from them. Network analysis of Hi-C data would provide information complementary to the one obtained through current analysis techniques, thus allowing to better study and characterize chromatin conformation and its role. 
@@ -17,5 +15,3 @@ HiCONA is a package which aims to address this lack of tools for Hi-C data netwo
 Hi-C data files can be quite large and cumbersome to work with; moreover network analysis itself is not trivial especially regarding memory usage. HiCONA strives to make possible to process almost any Hi-C data file even on laptops; for this reason, particularly demanding operations, such as the preprocessing, have been optimized keeping into account the specific properties of Hi-C data, in order to reduce memory usage and computational runtime by chunking, vectorizing and parallelizing operations.
 
 As previously mentioned, the main focus of discussion will be pixel preprocessing.
-
-% TODO: Maybe add something about reproducibility and requiring less coverage

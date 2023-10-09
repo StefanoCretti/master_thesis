@@ -1,8 +1,6 @@
 \graphicspath{{chapters/05_results/images}}
 \chapter{Results}
 
-% The Results part describes all the experiments performed and their statistical analysis (at least 10, maximum 40 pages). If you want to provide replication data, include them in another appendix (Appendix II).
-
 This chapter will focus on benchmarking the preprocessing procedure implemented by HiCONA, computing various statistics at different steps, measuring time and memory performance, as well as performing some biological validation via replicate correlation. For some steps, HiCONA will also be compared to loop-callers, meaning tools which try to identify pixels corresponding to loop domains using various approaches. Though loop-callers do not have the exact same objective as HiCONA, they will still be used as reference since they are the only tools found in literature which could reasonably fulfill this role. No proper network analysis will be presented, since the algorithms are still being implemented and tested, though some preliminary results will be mentioned in the discussion.
 
 Unless specified otherwise, all the data and analyses shown in this chapter were performed by my tutor, Leonardo Morelli, using HiCONA, which I implemented, as well as other custom scripts. The comparison with cooltools and the benchmarking were performed by myself; moreover, I adapted all the analyses and plots to highlight aspects relevant to the way HiCONA was implemented.
@@ -40,8 +38,8 @@ After computing the normalization factors, the pixels are normalized (see subsec
 % Plot from first lab meeting with distribution prior and after normalization
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.7\textwidth]{normalization_stats.png}
-  \caption{\textbf{Comparison of pixels counts distribution prior and post genomic distance normalization}. Comparison of the distribution of raw and normalized counts at each genomic distance for chromosome 1 of IMR90 cells, at 10 kb resolution, filtered using 200 Mb as genomic distance threshold. At the top, quantiles of the raw counts distribution for each genomic distance. In the middle, quantiles of the normalized counts distribution for each genomic distance. At the bottom, total number of pixels, and number of pixels with raw count equal to 1, for each genomic distance.}
+  \includegraphics[width=0.8\textwidth]{normalization_stats.png}
+  \caption{\textbf{Comparison of pixels counts distribution prior and post genomic distance normalization}. Comparison of the distribution of raw and normalized counts at each genomic distance for chromosome 1 of one replicate of IMR90 cells (4DNFIMU9T2QI), at 10 kb resolution, filtered using 200 Mb as genomic distance threshold. At the top, quantiles of the raw counts distribution for each genomic distance. In the middle, quantiles of the normalized counts distribution for each genomic distance. At the bottom, total number of pixels, and number of pixels with raw count equal to 1, for each genomic distance.}
   \label{fig:normstats}
 \end{figure}
 
@@ -68,7 +66,6 @@ In the middle panel, the fold change between the mean genomic distance of the fi
 
 Since at this step the edges are still being removed ignoring network properties, it makes sense to apply a filter only if the distance metrics are not heavily altered, and if the filter is consistent in its effect. Given these premises, the only parameter values which seem appropriate are 0.0 and 0.01 for quantile threshold and 100 Mb and 50 Mb for the distance threshold. It is worth noting that 0.0 and 0.01 quantile threshold behave almost identically and that 0.0 corresponds to not applying the filter at all; moreover both 100 Mb and 50 Mb are still very permissive thresholds in terms of genomic distance. This indicates that a filtering step which uses these parameters is not doing much, and it could be removed (aside from the removal of self looping pixels and inter-chromsomal ones).
 
-\newpage
 \subsection{Optimal alpha computation}
 
 After pixel filtering, the sparsification scores (or alpha values) are computed for each pixel as discussed in subsection \ref{par:sparscore}. HiCONA computes and stores both alpha values for each edge, in order to be able to use either the minimum or the maximum of the two. To perform the actual sparsification, a sparsification threshold (or alpha cutoff) must be defined. Although an arbitrary one can be chosen, HiCONA gives the option of computing the so-called optimal alpha value, that is the chromosome-level threshold which minimizes the number of edges while maximizing the number of nodes. This value is computed using a local search algorithm; one example of the grid of values tested by a run of the local search is shown in figure \ref{fig:alphas}.
@@ -79,7 +76,7 @@ For each chromosome the local search is actually run twice, once using the minim
 \begin{figure}[h]
   \centering 
   \includegraphics[width=1\textwidth]{alpha_tables.png}
-  \caption{\textbf{Optimal alpha selection process}. To define the optimal alpha value to sparsify the chromosome-level network, local search is performed. In the panels, sets of points tested to find the optimal alpha value for chromosome 1 of IMR90 cells at 10 kb resolution, processed using 200 Mb as distance threshold, 0 as quantile threshold. On the left, local search for the optimal value using maximal alphas. On the right, local search for the optimal value using minimal alphas.}
+  \caption{\textbf{Optimal alpha selection process}. To define the optimal alpha value to sparsify the chromosome-level network, local search is performed. In the panels, sets of points tested to find the optimal alpha value for chromosome 1 of one replicate of IMR90 cells (4DNFIMU9T2QI) at 10 kb resolution, processed using 200 Mb as distance threshold, 0 as quantile threshold. On the left, local search for the optimal value using maximal alphas. On the right, local search for the optimal value using minimal alphas.}
   \label{fig:alphas}
 \end{figure}
 
@@ -207,15 +204,3 @@ In figure \ref{fig:jaccardtools}, the consistency of HiCONA was compared to the 
   \caption{\textbf{Comparison of Jaccard indexes from HiCONA and loop-callers.} Jaccard indexes on replicates of IMR90 cells and GM12878 cells were computed for both HiCONA and common loop-callers. All files were processed using the suggested procedure for each loop-caller. For HiCONA, distance threshold of 100 Mb and quantile threshold equal to 0.01 were used. HiCONA seems to be consistently higher than all other tools. Data for the loop-callers from Forcato et al., 2017.}
   \label{fig:jaccardtools}
 \end{figure}
-
-% \subsection{Functional annotations enrichment}
-% Plot edge annotation fraction
-% Plot edge annotation enrichment
-
-
-
-% \section{Network analysis}
-% \subsection{Node-label permutations}
-% Plot node-label permutation for 1 file, chromosome-wise (maybe new ann)
-
-% ? Plot Hi-C maps at different steps

@@ -1,14 +1,10 @@
 \graphicspath{{chapters/04_materials_and_methods/images/}}
 \chapter{Materials and methods}
 
-% The Materials and Methods section provides a detailed description of the protocols,
-% software and algorithms used for the project (at least 3 pages, maximum 10 pages; if you need
-% more pages, include an Appendix).
-
 This chapter presents the HiCONA package, how it was implemented and what it can be used for. The main focus is on the steps leading to the creation of a network which can be then analyzed using standard or custom network analysis algorithms. One such algorithm, node-labels permutations, is then illustrated. The chapter does not explain how to actually use the package; for that, ample documentation and notebooks will be available as soon as the package is made public.
 
 \section{Implementation}
-Hi-C Organization Network Analysis (HiCONA) is a \textbf{Python3 package} compatible with Python version 3.7 and later. The package strives to provide a fast, memory-efficient, flexible and user-friendly framework for network analysis of Hi-C data. In order to do so, it is implemented taking into account some key aspects:
+Hi-C Organization Network Analysis (HiCONA) is a \textbf{Python3 package} compatible with Python version 3.8 and later. The package strives to provide a fast, memory-efficient, flexible and user-friendly framework for network analysis of Hi-C data. In order to do so, it is implemented taking into account some key aspects:
 \begin{itemize}\tightlist
   \item A fully \textbf{object-oriented programming} (OOP) approach is used to keep the functions organized and make it easy to extend with further functionalities.
   \item Well established file formats are used for both input and output, in order to facilitate package \textbf{integration} into already existing analysis pipelines.
@@ -51,7 +47,6 @@ Notice that, the way the initial subsetting is performed, not all inter-chromoso
 As of now, subsetting is supported only at chromosome-level and this is because subsetting on arbitrary genomic coordinates would lead to some issues. Even though the preprocessing procedure would work without issues (given that it is chunked), subsetting on a region larger than a chromosome could lead to extremely big networks downstream which would be difficult to handle; moreover, unless the inter-chromosomal filter is removed, the two chromosomes would be disconnected anyway. On the other hand, subsetting on a region smaller than a chromosome would skew the sparsification procedure, since it would arbitrarily remove some connections of the bins. Arbitrary subsetting might be added in the future if a compelling reason is found.
 
 \subsection{Pixel distance normalization}\label{par:distnorm}
-% TODO: Maybe say why HiCONA does not perform systematic bias normalization. PROBABLY JUST EXPLAIN THAT THE GENOMIC DISTANCE IS BY FAR THE HIGHEST CAUSE FOR CONTACT NUMBERS. MOREOVER DIFFICULT TO NORMALIZE IN GC CONTENT IF THE REGION IS FAIRLY BIG.
 
 A very important notion to keep into account, while preprocessing this type of data, is pixel genomic distance, which is the \textbf{genomic distance} among the two bins composing the pixel. Formally, this can be defined as 
 $$d_i = r(b_{2i} - b_{1i})$$
@@ -61,8 +56,6 @@ Although not directly for normalization purposes, the \texttt{cooltools} package
 $$P\left(d\right) = \frac{\sum_{i=1}^n c_i \cdot I(d = d_i)}{\sum_{i=1}^n I(d = d_i)}$$
 where $c_i$ is the count value of the $i$-th pixel, $n$ is the total number of pixels, and $I$ is an indicator function (1 if the genomic distance of the $i$-th pixel is the same as the one of interest, 0 otherwise). From a graphical point of view it corresponds to averaging the count values of all pixels on the same diagonal of the contact matrix. In reality the algorithm is slightly more complex, working on individual chromosome arms and removing some regions such as telomeres and centromeres. Since at high genomic distances the number of averaged pixels becomes progressively smaller, the expected counts estimates become more and more unstable; for this reason \texttt{cooltools} can perform a smoothing of the expected counts by distance curve by averaging the values in a sliding window of increasing size (basically, use the fact that very similar distances should have only a slight difference in expected counts). 
 This method is straightforward and immediate to understand, yet it has a major downside when used for normalization purposes: all pixels at a given distance are considered, even those with count value equal to zero, and given that these zero-count pixels are the majority of pixels, especially at high genomic distances, the expected counts quickly tend to zero. Extremely small values are difficult to use for normalization purposes, since they cannot be used as fraction denominators, otherwise the values would explode.
-% TODO: Talk more about instability at high distance if needed to fill space
-% TODO: Consider adding an image to make things more clear
 
 For this reason, HiCONA proposes a slightly different approach to compute the \textbf{summary statistic} for normalization purposes: only non-zero count pixels are considered and the median value is taken for each distance rather than the mean. Formally, this can be written as:
 $$P\left(d\right) = median(\{c_i|(d_i=d) \land (c_i \neq 0) \, \forall i \in [1,n]\})$$ 
