@@ -1,0 +1,50 @@
+chromhmm_state1	chromhmm_state2	count
+		1511
+	Enh	189
+	Het	1082
+	Polyc	317
+	Prom	134
+	Tx	297
+	ZNF	188
+Enh		216
+Enh	Enh	54871
+Enh	Het	71187
+Enh	Polyc	26085
+Enh	Prom	39589
+Enh	Tx	46163
+Enh	ZNF	9823
+Het		1060
+Het	Enh	70820
+Het	Het	600200
+Het	Polyc	101658
+Het	Prom	51073
+Het	Tx	69604
+Het	ZNF	15619
+Polyc		365
+Polyc	Enh	26372
+Polyc	Het	99198
+Polyc	Polyc	112496
+Polyc	Prom	17347
+Polyc	Tx	22090
+Polyc	ZNF	3182
+Prom		90
+Prom	Enh	40298
+Prom	Het	51104
+Prom	Polyc	17096
+Prom	Prom	43107
+Prom	Tx	48786
+Prom	ZNF	9382
+Tx		214
+Tx	Enh	46804
+Tx	Het	70169
+Tx	Polyc	21523
+Tx	Prom	48493
+Tx	Tx	122409
+Tx	ZNF	14280
+ZNF		122
+ZNF	Enh	9327
+ZNF	Het	15523
+ZNF	Polyc	3270
+ZNF	Prom	8995
+ZNF	Tx	14304
+ZNF	ZNF	7877
